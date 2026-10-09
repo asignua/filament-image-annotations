@@ -19,5 +19,19 @@ return new class extends Migration
             $table->rememberToken();
             $table->timestamps();
         });
+
+        Schema::create('posts', function (Blueprint $table): void {
+            $table->id();
+            $table->foreignId('user_id')->nullable();
+            $table->string('photo')->nullable();
+            $table->timestamps();
+        });
+
+        Schema::create('notes', function (Blueprint $table): void {
+            $table->id();
+            $table->string('photo')->nullable();
+            $table->softDeletes();
+            $table->timestamps();
+        });
     }
 };

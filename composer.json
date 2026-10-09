@@ -1,7 +1,15 @@
 {
     "name": "asignua/filament-image-annotations",
-    "description": "TODO: one-sentence description of Image Annotations for Filament.",
-    "keywords": ["filament", "filament-plugin", "laravel"],
+    "description": "Non-destructive vector annotations for Filament: arrows, rectangles, ellipses, lines, a pen, a highlighter and text drawn over an image as a separate JSON layer. The original file is never modified.",
+    "keywords": [
+        "filament",
+        "filament-plugin",
+        "laravel",
+        "image",
+        "annotations",
+        "markup",
+        "media-library"
+    ],
     "homepage": "https://github.com/asignua/filament-image-annotations",
     "support": {
         "issues": "https://github.com/asignua/filament-image-annotations/issues",
@@ -22,10 +30,12 @@
         "spatie/laravel-package-tools": "^1.16"
     },
     "require-dev": {
+        "filament/spatie-laravel-media-library-plugin": "^5.0",
         "larastan/larastan": "^3.0",
         "laravel/pint": "^1.18",
         "orchestra/testbench": "^10.0|^11.0",
-        "phpunit/phpunit": "^11.5|^12.0"
+        "phpunit/phpunit": "^11.5|^12.0",
+        "spatie/laravel-medialibrary": "^11.0"
     },
     "autoload": {
         "psr-4": {
@@ -58,5 +68,9 @@
         }
     },
     "minimum-stability": "stable",
-    "prefer-stable": true
+    "prefer-stable": true,
+    "suggest": {
+        "filament/spatie-laravel-media-library-plugin": "Annotate images stored through Spatie Media Library.",
+        "spatie/laravel-medialibrary": "Annotate Spatie Media items; their annotations are removed together with the media."
+    }
 }

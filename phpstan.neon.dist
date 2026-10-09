@@ -7,3 +7,8 @@ parameters:
         - src
     tmpDir: build/phpstan
     checkOctaneCompatibility: true
+    ignoreErrors:
+        # Shipped for the host's models; the package itself never uses it.
+        -
+            identifier: trait.unused
+            path: src/Concerns/HasImageAnnotations.php

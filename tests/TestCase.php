@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Asignua\FilamentImageAnnotations\Tests;
 
+use Asignua\FilamentImageAnnotations\ImageAnnotations;
 use Asignua\FilamentImageAnnotations\ImageAnnotationsServiceProvider;
 use BladeUI\Heroicons\BladeHeroiconsServiceProvider;
 use BladeUI\Icons\BladeIconsServiceProvider;
@@ -18,10 +19,14 @@ use Filament\Support\SupportServiceProvider;
 use Filament\Tables\TablesServiceProvider;
 use Filament\Widgets\WidgetsServiceProvider;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Gate;
 use Livewire\LivewireServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
 use RyanChandler\BladeCaptureDirective\BladeCaptureDirectiveServiceProvider;
+use Spatie\MediaLibrary\MediaLibraryServiceProvider;
+use Workbench\App\Models\Post;
 use Workbench\App\Models\User;
+use Workbench\App\Policies\PostPolicy;
 use Workbench\App\Providers\AdminPanelProvider;
 
 abstract class TestCase extends Orchestra
@@ -32,8 +37,9 @@ abstract class TestCase extends Orchestra
     {
         parent::setUp();
 
-        $this->actingAs(User::factory()->create());
         Filament::setCurrentPanel('admin');
+        Gate::policy(Post::class, PostPolicy::class);
+        ImageAnnotations::authorizeUsing(null);
     }
 
     protected function getPackageProviders($app): array
@@ -47,6 +53,7 @@ abstract class TestCase extends Orchestra
             FormsServiceProvider::class,
             InfolistsServiceProvider::class,
             LivewireServiceProvider::class,
+            MediaLibraryServiceProvider::class,
             NotificationsServiceProvider::class,
             SchemasServiceProvider::class,
             SupportServiceProvider::class,
@@ -62,10 +69,15 @@ abstract class TestCase extends Orchestra
         $app['config']->set('app.key', 'base64:'.base64_encode(str_repeat('a', 32)));
         $app['config']->set('database.default', 'testing');
         $app['config']->set('auth.providers.users.model', User::class);
+        $app['config']->set('filesystems.disks.public.root', sys_get_temp_dir().'/image-annotations-tests/public');
+        $app['config']->set('media-library.disk_name', 'public');
     }
 
     protected function defineDatabaseMigrations(): void
     {
         $this->loadMigrationsFrom(__DIR__.'/../workbench/database/migrations');
+
+        (include __DIR__.'/../vendor/spatie/laravel-medialibrary/database/migrations/create_media_table.php.stub')->up();
+        (include __DIR__.'/../database/migrations/create_image_annotations_table.php.stub')->up();
     }
 }
