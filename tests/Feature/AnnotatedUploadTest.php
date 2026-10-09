@@ -127,6 +127,21 @@ class AnnotatedUploadTest extends TestCase
         $this->assertCount(1, ImageAnnotations::store()->shapes(new MediaImageSource($media), $this->author)['items']);
     }
 
+    public function test_the_button_of_a_stored_file_is_enabled(): void
+    {
+        $this->actingAs($this->author);
+        $post = Post::create(['user_id' => $this->author->id]);
+        $post->addMedia(UploadedFile::fake()->image('door.jpg', 400, 300))->toMediaCollection('photos');
+
+        $test = Livewire::test(EditPost::class, ['record' => $post->getKey()]);
+        $key = (string) array_key_first($this->stateOf($test, 'photos'));
+
+        $test->assertActionVisible($this->postAnnotate($key))->assertActionEnabled($this->postAnnotate($key));
+        // assertActionEnabled() builds its own action; the RENDERED per-file button is what broke (a cloned action
+        // whose closures still saw the argument-less original).
+        $this->assertStringNotContainsString('fi-ac-link-action fi-link fi-disabled', $test->html());
+    }
+
     public function test_the_action_saves_the_layer_of_a_path_and_the_count_shows(): void
     {
         $this->actingAs($this->author);

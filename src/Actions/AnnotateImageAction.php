@@ -41,36 +41,39 @@ class AnnotateImageAction extends Action
         $this->slideOver(false);
         $this->successNotificationTitle(fn (): string => __('filament-image-annotations::filament-image-annotations.action.saved'));
 
-        $this->schema(fn (): array => [
+        // Every closure takes the action as `$action` and NEVER uses `$this`: Filament clones the action when it binds
+        // arguments (a per-file button of AnnotatedUpload), and `$this` inside a closure made here stays the ORIGINAL,
+        // argument-less instance — the button then found no image and rendered hidden/disabled.
+        $this->schema(static fn (self $action): array => [
             ImageAnnotator::make('annotations')
                 ->hiddenLabel()
-                ->image(fn () => $this->getImageSource()),
+                ->image(static fn () => $action->getImageSource()),
         ]);
 
-        $this->fillForm(function (): array {
-            $source = $this->getImageSource();
+        $this->fillForm(static function (self $action): array {
+            $source = $action->getImageSource();
 
             return ['annotations' => $source === null ? ['v' => 1, 'items' => []] : ImageAnnotations::store()->shapes($source, Filament::auth()->user())];
         });
 
         // Hidden for a record without an image and for a user who may not annotate it.
-        $this->hidden(function (): bool {
+        $this->hidden(static function (self $action): bool {
             // An ActionGroup asks its children once WITHOUT a row to decide whether to draw itself; the per-row
             // check below hides the button where it matters.
-            if ($this->hasTable() && $this->getRecord() === null) {
+            if ($action->hasTable() && $action->getRecord() === null) {
                 return false;
             }
 
-            $source = $this->getImageSource();
+            $source = $action->getImageSource();
 
             return $source === null || !$source->canAnnotate(Filament::auth()->user());
         });
 
-        $this->action(function (array $data): void {
-            $source = $this->getImageSource();
+        $this->action(static function (self $action, array $data): void {
+            $source = $action->getImageSource();
 
             if ($source === null) {
-                $this->failure();
+                $action->failure();
 
                 return;
             }
@@ -83,7 +86,7 @@ class AnnotateImageAction extends Action
                 return;
             }
 
-            $this->success();
+            $action->success();
         });
     }
 }
