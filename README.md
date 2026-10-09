@@ -68,3 +68,21 @@ See [CHANGELOG.md](CHANGELOG.md).
 ## License
 
 The MIT License (MIT). See [LICENSE.md](LICENSE.md).
+
+## Usage
+
+```php
+use Asignua\FilamentImageAnnotations\Actions\AnnotateImageAction;
+use Asignua\FilamentImageAnnotations\Infolists\Components\AnnotatedImageEntry;
+
+// Table record / header / infolist action: opens the editor in a full-screen modal.
+AnnotateImageAction::make()->image(fn (Post $record) => $record->getFirstMedia('photos'));
+
+// Read-only view with a show/hide toggle (a plain picture when there is nothing drawn or no permission).
+AnnotatedImageEntry::make('photo')->image(fn (Post $record) => $record->getFirstMedia('photos'));
+```
+
+Anywhere else (needs Alpine and Filament's asset route on the page): `<x-image-annotations::image :image="$media" alt="..." />`.
+The editor field is `Forms\Components\ImageAnnotator`. Shortcuts: V select, A arrow, R rectangle, E ellipse, L line, P pen, H highlighter, T text, Ctrl/Cmd+Z undo, Ctrl/Cmd+Shift+Z redo, Delete removes the selection.
+
+Try it by hand: `vendor/bin/testbench workbench:build`, then `vendor/bin/testbench filament:assets`, then `vendor/bin/testbench serve --port=8000`; log in at `/admin` as `alice@example.com` / `password`.

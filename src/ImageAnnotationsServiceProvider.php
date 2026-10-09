@@ -7,6 +7,9 @@ namespace Asignua\FilamentImageAnnotations;
 use Asignua\FilamentImageAnnotations\Sources\MediaImageSource;
 use Asignua\FilamentImageAnnotations\Support\AnnotationStore;
 use Asignua\FilamentImageAnnotations\Support\ImageSources;
+use Filament\Support\Assets\AlpineComponent;
+use Filament\Support\Facades\FilamentAsset;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Event;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
@@ -14,6 +17,12 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class ImageAnnotationsServiceProvider extends PackageServiceProvider
 {
+    public const string PACKAGE = 'asignua/filament-image-annotations';
+
+    public const string ANNOTATOR = 'image-annotations-annotator';
+
+    public const string VIEWER = 'image-annotations-viewer';
+
     public static string $name = 'filament-image-annotations';
 
     public function configurePackage(Package $package): void
@@ -45,6 +54,15 @@ class ImageAnnotationsServiceProvider extends PackageServiceProvider
 
     public function packageBooted(): void
     {
+        // <x-image-annotations::image>
+        Blade::anonymousComponentPath(__DIR__.'/../resources/views/components', 'image-annotations');
+
+        // Fetched by Alpine's x-load, only on a page that shows the editor / an annotated image.
+        FilamentAsset::register([
+            AlpineComponent::make(self::ANNOTATOR, __DIR__.'/../resources/dist/annotator.js'),
+            AlpineComponent::make(self::VIEWER, __DIR__.'/../resources/dist/viewer.js'),
+        ], self::PACKAGE);
+
         if (!class_exists(Media::class)) {
             return;
         }

@@ -1,0 +1,11 @@
+{
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "build": "esbuild resources/js/annotator.js --bundle --minify --format=esm --outfile=resources/dist/annotator.js && esbuild resources/js/viewer.js --bundle --minify --format=esm --outfile=resources/dist/viewer.js",
+        "dev": "esbuild resources/js/annotator.js resources/js/viewer.js --bundle --format=esm --outdir=resources/dist --watch"
+    },
+    "devDependencies": {
+        "esbuild": "^0.28.2"
+    }
+}
