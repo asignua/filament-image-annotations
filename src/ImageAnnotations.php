@@ -18,6 +18,9 @@ use Illuminate\Support\Facades\Auth;
  */
 class ImageAnnotations
 {
+    /** Livewire event dispatched by AnnotateImageAction after a successful save; payload `image` = {@see imageId()}. */
+    public const string SAVED_EVENT = 'image-annotations:saved';
+
     /** @var (Closure(?Authenticatable, ImageSource, string): bool)|null */
     protected static ?Closure $authorizer = null;
 
@@ -110,6 +113,16 @@ class ImageAnnotations
         }
 
         return $html;
+    }
+
+    /**
+     * A stable, non-secret identifier of an image (sha1 of "morph class|id|key"), safe to put in an event payload.
+     */
+    public static function imageId(ImageSource $source): string
+    {
+        $owner = $source->annotatable();
+
+        return sha1($owner->getMorphClass().'|'.$owner->getKey().'|'.($source->key() ?? ''));
     }
 
     public static function store(): AnnotationStore

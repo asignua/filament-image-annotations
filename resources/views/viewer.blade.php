@@ -28,7 +28,7 @@
         x-data="imageAnnotationsViewer()"
         data-layers="{{ json_encode(array_map(static fn ($layer): array => $layer->toArray(), $layers), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR) }}"
         data-palette="{{ json_encode(config('filament-image-annotations.palette'), JSON_THROW_ON_ERROR) }}"
-        style="position:relative;display:inline-block;max-width:100%;line-height:0;{{ $wrapperStyle ?? '' }}"
+        style="position:relative;display:inline-block;max-width:100%;line-height:0;{{ $panels !== '' ? 'flex:0 1 auto;min-width:min(24rem,100%);' : '' }}{{ $wrapperStyle ?? '' }}"
     >
         <img
             x-ref="image"

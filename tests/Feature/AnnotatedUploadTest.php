@@ -127,6 +127,21 @@ class AnnotatedUploadTest extends TestCase
         $this->assertCount(1, ImageAnnotations::store()->shapes(new MediaImageSource($media), $this->author)['items']);
     }
 
+    public function test_a_successful_save_dispatches_the_saved_event_with_a_stable_image_id(): void
+    {
+        $this->actingAs($this->author);
+        $post = Post::create(['user_id' => $this->author->id]);
+        $media = $post->addMedia(UploadedFile::fake()->image('door.jpg', 400, 300))->toMediaCollection('photos');
+
+        $test = Livewire::test(EditPost::class, ['record' => $post->getKey()]);
+        $key = (string) array_key_first($this->stateOf($test, 'photos'));
+
+        $test->callAction($this->postAnnotate($key), ['annotations' => $this->layer()])
+            ->assertDispatched(ImageAnnotations::SAVED_EVENT, image: ImageAnnotations::imageId(new MediaImageSource($media)));
+
+        $this->assertSame(sha1($media->getMorphClass().'|'.$media->getKey().'|'), ImageAnnotations::imageId(new MediaImageSource($media)));
+    }
+
     public function test_the_button_of_a_stored_file_is_enabled(): void
     {
         $this->actingAs($this->author);

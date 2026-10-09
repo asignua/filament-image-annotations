@@ -14,6 +14,7 @@ use Filament\Notifications\Notification;
 use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Auth\Access\AuthorizationException;
+use Livewire\Component;
 
 /**
  * Opens the editor in a modal. Works as a table record action, a header action or a schema action:
@@ -87,6 +88,14 @@ class AnnotateImageAction extends Action
                 Notification::make()->danger()->title($exception->getMessage())->send();
 
                 return;
+            }
+
+            // Anything on the page that shows the layers (the pro pin panels, a host widget) re-reads them. The payload
+            // is a stable, non-secret id of the image: sha1 of "morph class|id|key".
+            $livewire = $action->getLivewire();
+
+            if ($livewire instanceof Component) {
+                $livewire->dispatch(ImageAnnotations::SAVED_EVENT, image: ImageAnnotations::imageId($source));
             }
 
             $action->success();

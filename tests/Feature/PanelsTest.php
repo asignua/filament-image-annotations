@@ -38,9 +38,11 @@ class PanelsTest extends TestCase
 
         $this->assertStringContainsString('data-ia-scope', $html);
         $this->assertStringContainsString('data-test-panel="viewer"', $html);
+        $this->assertStringContainsString('min-width:min(24rem,100%)', $html);
 
         ImageAnnotations::flushPanels();
 
+        $this->assertStringNotContainsString('min-width:min(24rem', Blade::render('<x-image-annotations::image :image="$media" />', ['media' => $media]));
         $this->assertStringNotContainsString('data-ia-scope', Blade::render('<x-image-annotations::image :image="$media" />', ['media' => $media]));
     }
 }

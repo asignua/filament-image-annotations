@@ -46,8 +46,7 @@ workbench:
     - create-sqlite-db
     - db-wipe
     - migrate-fresh
+    - storage-link:
+        --force: true
   assets:
     - laravel-assets
-  sync:
-    - from: storage/app/public
-      to: public/storage

@@ -366,6 +366,11 @@ canvas (`$context = 'editor'`) and next to the annotated image in the viewer (`'
 and the canvas share a container marked `data-ia-scope`, so a panel can tell which events belong to its image. Nothing changes
 visually while no panel is registered.
 
+**Saved event.** After a successful save `AnnotateImageAction` dispatches the Livewire event `image-annotations:saved`
+(`ImageAnnotations::SAVED_EVENT`) with `image` = `ImageAnnotations::imageId($source)`, a non-secret `sha1("morph class|id|key")`.
+Anything on the page that shows annotation data (a pro panel, your own Livewire component) listens with
+`#[On('image-annotations:saved')]`; the Pro pin panel always re-reads, you may compare the id to filter.
+
 **Hidden by default.** A layer whose `meta['hidden']` is `true` starts switched off (its chip is still there).
 
 ## Gotchas
@@ -384,10 +389,12 @@ visually while no panel is registered.
 A workbench is included (a post with a Media Library photo and a note with a plain `FileUpload`, both with the editor):
 
 ```bash
-vendor/bin/testbench workbench:build
+vendor/bin/testbench workbench:build      # sqlite db, migrations, seeder and the public/storage link (do not run db:seed on top: duplicate user)
 vendor/bin/testbench filament:assets
-vendor/bin/testbench serve --host=0.0.0.0 --port=8000
+APP_URL=http://localhost:8000 vendor/bin/testbench serve --host=0.0.0.0 --port=8000
 ```
+
+`APP_URL` must carry the port you serve on, or image URLs point to the wrong place.
 
 Log in at `/admin` as `alice@example.com` / `password` (`bob@example.com` may not touch Alice's post). Inside Docker,
 publish a port for the container first.
