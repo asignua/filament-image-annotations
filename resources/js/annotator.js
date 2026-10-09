@@ -55,7 +55,7 @@ export default function imageAnnotator({ state, palette = {}, widths = [2, 4, 8]
         // Read-only layers drawn below the editable one: never selectable, never part of `state`.
         underlays,
 
-        ...layerToggles(),
+        ...layerToggles(underlays),
 
         color: colorNames[0] ?? '#ef4444',
 

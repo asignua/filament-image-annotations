@@ -3,7 +3,7 @@
  * The layers and palette travel in data attributes (`data-layers`, `data-palette`), so the markup stays
  * valid for any content; the original image is never touched.
  */
-import { emit, layerToggles, renderLayers } from './render.js'
+import { emit, hiddenByDefault, layerToggles, renderLayers } from './render.js'
 
 export default function imageAnnotationsViewer() {
     return {
@@ -27,6 +27,7 @@ export default function imageAnnotationsViewer() {
 
         init() {
             this.read()
+            this.hidden = hiddenByDefault(this.layers)
 
             const image = this.$refs.image
 

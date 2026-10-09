@@ -14,6 +14,7 @@
 @endphp
 
 @include('filament-image-annotations::viewer', [
+    'source' => $source,
     'url' => $source->url(),
     'layers' => $layers,
     'alt' => $alt,

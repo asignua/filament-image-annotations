@@ -1,7 +1,7 @@
 {{--
     Image + annotation overlay. Shared by the infolist entry and <x-image-annotations::image>.
 
-    $url (string), $layers (list<Layer>|null), $alt (string), $imageAttributes (ComponentAttributeBag), $wrapperStyle (string)
+    $url (string), $source (ImageSource|null, for the side panels), $layers (list<Layer>|null), $alt (string), $imageAttributes (ComponentAttributeBag), $wrapperStyle (string)
 
     The layers travel in `data-layers` as escaped JSON ([{key,label,color,items}]) and are parsed by the Alpine component;
     without JavaScript (or without a permission: $layers is empty) it is just the picture.
@@ -15,9 +15,13 @@
     $imageAttributes = $imageAttributes ?? new ComponentAttributeBag();
     $layers = array_values(array_filter($layers ?? [], static fn ($layer): bool => $layer->items !== []));
     $hasItems = $layers !== [];
+    $panels = $hasItems && ($source ?? null) ? \Asignua\FilamentImageAnnotations\ImageAnnotations::panels($source, 'viewer') : '';
 @endphp
 
 @if ($hasItems)
+    @if ($panels !== '')
+        <div data-ia-scope style="display:flex;flex-wrap:wrap;align-items:flex-start;gap:1rem">
+    @endif
     <div
         x-load
         x-load-src="{{ FilamentAsset::getAlpineComponentSrc(ImageAnnotationsServiceProvider::VIEWER, ImageAnnotationsServiceProvider::PACKAGE) }}"
@@ -59,6 +63,10 @@
             ></span>
         </button>
     </div>
+    @if ($panels !== '')
+        {!! $panels !!}
+        </div>
+    @endif
 @else
     <img src="{{ $url }}" alt="{{ $alt ?? '' }}" {{ $imageAttributes->style(['max-width:100%', 'height:auto']) }} />
 @endif

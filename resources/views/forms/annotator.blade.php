@@ -10,6 +10,8 @@
     $limits = config('filament-image-annotations.limits');
     $t = fn (string $key, array $replace = []): string => __('filament-image-annotations::filament-image-annotations.'.$key, $replace);
 
+    $panels = ($source = $getImageSource()) ? \Asignua\FilamentImageAnnotations\ImageAnnotations::panels($source, 'editor') : '';
+
     $underlays = array_map(static fn ($layer): array => $layer->toArray(), $getUnderlays());
 
     // Tool => [label key, shortcut, svg markup (24x24, stroke = currentColor)].
@@ -32,6 +34,8 @@
 
 <x-dynamic-component :component="$getFieldWrapperView()" :field="$field">
     @if ($imageUrl)
+        {{-- The scope of the image-annotations:* events: the editor and, when a pro panel is registered, that panel. --}}
+        <div data-ia-scope @if ($panels !== '') style="display:flex;flex-wrap:wrap;align-items:flex-start;gap:1rem" @endif>
         <div
             x-load
             x-load-src="{{ FilamentAsset::getAlpineComponentSrc(ImageAnnotationsServiceProvider::ANNOTATOR, ImageAnnotationsServiceProvider::PACKAGE) }}"
@@ -51,7 +55,7 @@
             tabindex="-1"
             wire:ignore
             wire:key="{{ $getLivewireKey() }}.annotator"
-            style="display:flex;flex-direction:column;gap:0.75rem;outline:none"
+            style="display:flex;flex-direction:column;gap:0.75rem;outline:none;{{ $panels !== '' ? 'flex:1 1 24rem;min-width:0' : '' }}"
         >
             <div
                 role="toolbar"
@@ -178,6 +182,10 @@
                     </template>
                 </div>
             </div>
+        </div>
+        @if ($panels !== '')
+            {!! $panels !!}
+        @endif
         </div>
     @else
         <p class="fi-fo-field-wrp-hint">{{ __('filament-image-annotations::filament-image-annotations.image_unavailable') }}</p>

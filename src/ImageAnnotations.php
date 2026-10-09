@@ -10,6 +10,7 @@ use Asignua\FilamentImageAnnotations\Support\ImageSources;
 use Asignua\FilamentImageAnnotations\Support\Layer;
 use Closure;
 use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Facades\Auth;
 
 /**
@@ -19,6 +20,9 @@ class ImageAnnotations
 {
     /** @var (Closure(?Authenticatable, ImageSource, string): bool)|null */
     protected static ?Closure $authorizer = null;
+
+    /** @var list<Closure(ImageSource, string): (Htmlable|string|null)> */
+    protected static array $panels = [];
 
     /**
      * Replaces the default rule (the owner's policy) for every source. The ability is 'view' or 'annotate'.
@@ -72,6 +76,40 @@ class ImageAnnotations
         }
 
         return array_values(array_filter(static::store()->layers($source, $user), static fn (Layer $layer): bool => $layer->items !== []));
+    }
+
+    /**
+     * Adds a side panel next to the editor canvas and the viewer image (the pro package puts its pin threads there).
+     * The callback gets the image and the context (`editor` or `viewer`) and returns HTML — a string or Htmlable —
+     * or null for no panel. The root element of the HTML sits inside the `data-ia-scope` container that also holds the
+     * canvas, so it can listen to the `image-annotations:*` events bubbling from it.
+     *
+     * @param Closure(ImageSource, string): (Htmlable|string|null) $renderer
+     */
+    public static function addPanel(Closure $renderer): void
+    {
+        static::$panels[] = $renderer;
+    }
+
+    public static function flushPanels(): void
+    {
+        static::$panels = [];
+    }
+
+    /**
+     * The HTML of every registered panel for this image, concatenated; an empty string when there is none.
+     */
+    public static function panels(ImageSource $source, string $context): string
+    {
+        $html = '';
+
+        foreach (static::$panels as $renderer) {
+            $part = $renderer($source, $context);
+
+            $html .= $part instanceof Htmlable ? $part->toHtml() : (string) $part;
+        }
+
+        return $html;
     }
 
     public static function store(): AnnotationStore

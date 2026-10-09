@@ -280,12 +280,27 @@ function prepare(svg, aspect) {
 }
 
 /**
+ * Layers that start hidden: those whose `meta.hidden` is true (the pro package sets it for other authors' layers).
+ */
+export function hiddenByDefault(layers) {
+    const hidden = {}
+
+    for (const layer of layers ?? []) {
+        if (layer?.meta?.hidden === true) {
+            hidden[layer.key] = true
+        }
+    }
+
+    return hidden
+}
+
+/**
  * Per-layer show/hide state shared by the editor (underlays) and the viewer. Spread into the Alpine component;
  * the component defines `drawLayers()`. Visibility is client-side only.
  */
-export function layerToggles() {
+export function layerToggles(layers = []) {
     return {
-        hidden: {},
+        hidden: hiddenByDefault(layers),
 
         isShown(key) {
             return !this.hidden[key]

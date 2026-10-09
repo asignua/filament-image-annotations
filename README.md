@@ -361,6 +361,13 @@ and renumbers duplicates within a layer to `max + 1`. A pin renders as a filled 
 
     document.addEventListener('image-annotations:pin-click', (e) => openThread(e.detail.layer, e.detail.n))
 
+**Side panels.** `ImageAnnotations::addPanel(fn (ImageSource $source, string $context) => $html)` adds HTML next to the editor
+canvas (`$context = 'editor'`) and next to the annotated image in the viewer (`'viewer'`); return null for no panel. The panels
+and the canvas share a container marked `data-ia-scope`, so a panel can tell which events belong to its image. Nothing changes
+visually while no panel is registered.
+
+**Hidden by default.** A layer whose `meta['hidden']` is `true` starts switched off (its chip is still there).
+
 ## Gotchas
 
 - **Nothing happens when I open the editor on a page of my own.** Run `php artisan filament:assets`; the editor is loaded

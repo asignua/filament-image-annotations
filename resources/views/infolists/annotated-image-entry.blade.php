@@ -3,6 +3,7 @@
 
     @if ($url)
         @include('filament-image-annotations::viewer', [
+            'source' => $getImageSource(),
             'url' => $url,
             'layers' => $getLayers(),
             'alt' => $getAlt(),
