@@ -585,6 +585,27 @@ export default function imageAnnotator({ state, palette = {}, widths = [2, 4, 8]
             this.flush()
         },
 
+        // When the modal opens the focus sits on its close button / the page, not in the editor, so the shortcuts
+        // did nothing until the picture was clicked. Keys pressed anywhere in the SAME modal (or on <body>) count
+        // too; keys inside the editor are already handled by the root's own listener.
+        windowKeys(event) {
+            const root = this.$refs.root
+            const target = event.target
+
+            if (!root || root.offsetParent === null || (target instanceof Node && root.contains(target))) {
+                return
+            }
+
+            // Filament focuses the window's CONTAINER (`.fi-modal-window-ctn`, a parent of `.fi-modal-window`) on open.
+            const scope = root.closest('.fi-modal-window-ctn') ?? root.closest('.fi-modal-window') ?? root
+
+            if (target !== document.body && !(target instanceof Node && scope.contains(target))) {
+                return
+            }
+
+            this.keys(event)
+        },
+
         keys(event) {
             const target = event.target
 

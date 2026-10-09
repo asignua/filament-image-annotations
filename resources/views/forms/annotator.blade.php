@@ -39,6 +39,7 @@
             })"
             x-ref="root"
             x-on:keydown="keys($event)"
+            x-on:keydown.window="windowKeys($event)"
             tabindex="-1"
             wire:ignore
             wire:key="{{ $getLivewireKey() }}.annotator"

@@ -43,7 +43,6 @@ in the panel or on your public site.
 
 ![The read-only view with the show/hide toggle](art/viewer.jpg)
 
-(Placeholders: the images live in `art/`.)
 
 ## Requirements
 
