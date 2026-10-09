@@ -2,6 +2,10 @@
 
 All notable changes to `asignua/filament-image-annotations` are documented here.
 
+## v1.1.1 - 2026-10-10
+
+- Fix: the migration no longer adds an index over `key` (512 characters) next to the morph columns — on MySQL / MariaDB it exceeded the 3072-byte key limit and `migrate` failed with error 1071, leaving a half-created table. Hosts that already published the migration should remove that `$table->index(...)` line from their copy before migrating.
+
 ## v1.1.0 - 2026-10-09
 
 - First public release (versioned 1.1.0: the Pro add-on and early adopters already require ^1.1).

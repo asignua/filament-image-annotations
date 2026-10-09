@@ -21,7 +21,8 @@ return new class extends Migration
             $table->json('shapes');
             $table->timestamps();
 
-            $table->index(['annotatable_type', 'annotatable_id', 'key'], 'image_annotations_target_index');
+            // No index on `key`: (type 255 + id + key 512) × 4 bytes of utf8mb4 is over the 3072-byte limit of MySQL /
+            // MariaDB (error 1071). The morphs() index already narrows a lookup to one record's few layers.
         });
     }
 
