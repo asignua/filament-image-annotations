@@ -16,6 +16,7 @@ return [
         'pen' => 'Pióro',
         'highlight' => 'Zakreślacz',
         'text' => 'Tekst',
+        'pin' => 'Znacznik z numerem',
     ],
     'colors' => [
         'red' => 'Czerwony',
@@ -51,6 +52,10 @@ return [
         'show' => 'Pokaż adnotacje',
         'hide' => 'Ukryj adnotacje',
         'toggle' => 'Pokaż lub ukryj adnotacje',
+    ],
+    'layers' => [
+        'label' => 'Warstwy',
+        'default' => 'Adnotacje',
     ],
     'action' => [
         'label' => 'Dodaj adnotacje',

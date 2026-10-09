@@ -16,6 +16,7 @@ return [
         'pen' => 'Caneta',
         'highlight' => 'Marca-texto',
         'text' => 'Texto',
+        'pin' => 'Marcador numerado',
     ],
     'colors' => [
         'red' => 'Vermelho',
@@ -51,6 +52,10 @@ return [
         'show' => 'Mostrar anotações',
         'hide' => 'Ocultar anotações',
         'toggle' => 'Mostrar ou ocultar anotações',
+    ],
+    'layers' => [
+        'label' => 'Camadas',
+        'default' => 'Anotações',
     ],
     'action' => [
         'label' => 'Anotar',

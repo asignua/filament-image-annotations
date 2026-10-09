@@ -16,6 +16,7 @@ return [
         'pen' => 'Kalem',
         'highlight' => 'Vurgulayıcı',
         'text' => 'Metin',
+        'pin' => 'Numaralı işaret',
     ],
     'colors' => [
         'red' => 'Kırmızı',
@@ -51,6 +52,10 @@ return [
         'show' => 'Notları göster',
         'hide' => 'Notları gizle',
         'toggle' => 'Notları göster veya gizle',
+    ],
+    'layers' => [
+        'label' => 'Katmanlar',
+        'default' => 'Açıklamalar',
     ],
     'action' => [
         'label' => 'Not ekle',

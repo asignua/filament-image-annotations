@@ -7,6 +7,7 @@ namespace Asignua\FilamentImageAnnotations\Actions;
 use Asignua\FilamentImageAnnotations\Concerns\InteractsWithImage;
 use Asignua\FilamentImageAnnotations\Forms\Components\ImageAnnotator;
 use Asignua\FilamentImageAnnotations\ImageAnnotations;
+use Asignua\FilamentImageAnnotations\Support\Layer;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
 use Filament\Notifications\Notification;
@@ -47,7 +48,9 @@ class AnnotateImageAction extends Action
         $this->schema(static fn (self $action): array => [
             ImageAnnotator::make('annotations')
                 ->hiddenLabel()
-                ->image(static fn () => $action->getImageSource()),
+                ->image(static fn () => $action->getImageSource())
+                ->layerKey(static fn (): string => $action->editableLayer()->key ?? Layer::DEFAULT_KEY)
+                ->underlays(static fn (): array => $action->underlayLayers()),
         ]);
 
         $this->fillForm(static function (self $action): array {
@@ -88,5 +91,36 @@ class AnnotateImageAction extends Action
 
             $action->success();
         });
+    }
+
+    /**
+     * @return list<Layer>
+     */
+    protected function layers(): array
+    {
+        $source = $this->getImageSource();
+
+        return $source === null ? [] : ImageAnnotations::store()->layers($source, Filament::auth()->user());
+    }
+
+    public function editableLayer(): ?Layer
+    {
+        foreach ($this->layers() as $layer) {
+            if ($layer->editable) {
+                return $layer;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * The layers shown below the one being edited (none in the free package).
+     *
+     * @return list<Layer>
+     */
+    public function underlayLayers(): array
+    {
+        return array_values(array_filter($this->layers(), static fn (Layer $layer): bool => !$layer->editable && $layer->items !== []));
     }
 }

@@ -16,3 +16,7 @@ All notable changes to `asignua/filament-image-annotations` are documented here.
 - `AnnotationStore` (rebindable), `ShapeSanitizer`, `AnnotationSaved` / `AnnotationDeleted` events, the `HasImageAnnotations`
   trait and automatic cleanup when a Media item is deleted.
 - Ten interface languages.
+- Extension points for the Pro package: `Support\Layer` and `AnnotationStore::layers()`; read-only underlays in the editor
+  (`ImageAnnotator::underlays()`, filled by `AnnotateImageAction`) and several layers in the viewer, each with a toggle chip
+  (the viewer attribute is now `data-layers`); a `pin` shape (numbered marker, sanitised and rendered) with an opt-in `pin`
+  tool; configurable toolbar (`tools` config and `->tools()`); `image-annotations:pin-click` / `change` / `pin-added` DOM events.

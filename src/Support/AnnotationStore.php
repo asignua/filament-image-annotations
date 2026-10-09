@@ -35,6 +35,18 @@ class AnnotationStore
     }
 
     /**
+     * Every layer $user is shown: at most one in the free package (`default`, editable when they may annotate).
+     * The pro package returns one per author — the user's own editable, the others read-only. Callers use the
+     * editable one for editing and the rest as underlays.
+     *
+     * @return list<Layer>
+     */
+    public function layers(ImageSource $source, ?Authenticatable $user): array
+    {
+        return [new Layer(Layer::DEFAULT_KEY, null, null, $this->shapes($source, $user)['items'], $source->canAnnotate($user))];
+    }
+
+    /**
      * Stores the layer. An empty layer deletes the row and returns a fresh UNSAVED model (exists === false)
      * carrying the empty shapes, so callers can treat the result uniformly.
      *

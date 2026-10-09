@@ -45,6 +45,16 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Tools
+    |--------------------------------------------------------------------------
+    |
+    | The tools of the editor toolbar, in order. Also available: `pin` (a numbered marker, shortcut N), off by
+    | default; the pro package turns it on. Override per field with `ImageAnnotator::make()->tools([...])`.
+    */
+    'tools' => ['select', 'arrow', 'rect', 'ellipse', 'line', 'pen', 'highlight', 'text'],
+
+    /*
+    |--------------------------------------------------------------------------
     | Limits
     |--------------------------------------------------------------------------
     |

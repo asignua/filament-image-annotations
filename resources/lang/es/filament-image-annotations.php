@@ -16,6 +16,7 @@ return [
         'pen' => 'Lápiz',
         'highlight' => 'Resaltador',
         'text' => 'Texto',
+        'pin' => 'Marcador numerado',
     ],
     'colors' => [
         'red' => 'Rojo',
@@ -51,6 +52,10 @@ return [
         'show' => 'Mostrar anotaciones',
         'hide' => 'Ocultar anotaciones',
         'toggle' => 'Mostrar u ocultar anotaciones',
+    ],
+    'layers' => [
+        'label' => 'Capas',
+        'default' => 'Anotaciones',
     ],
     'action' => [
         'label' => 'Anotar',

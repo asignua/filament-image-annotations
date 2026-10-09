@@ -13,6 +13,7 @@ use Asignua\FilamentImageAnnotations\Sources\MediaImageSource;
 use Asignua\FilamentImageAnnotations\Sources\ModelPathImageSource;
 use Asignua\FilamentImageAnnotations\Support\AnnotationStore;
 use Asignua\FilamentImageAnnotations\Support\ImageSources;
+use Asignua\FilamentImageAnnotations\Support\Layer;
 use Asignua\FilamentImageAnnotations\Tests\TestCase;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\DB;
@@ -346,5 +347,30 @@ class AnnotationStoreTest extends TestCase
         ModelPathImageSource::urlUsing(fn ($record, string $path, ?string $disk): string => "https://cdn.test/{$disk}/{$path}");
         $this->assertSame('https://cdn.test/public/img/x.png', $source->url());
         ModelPathImageSource::urlUsing(null);
+    }
+
+    public function test_the_free_store_has_one_default_layer_editable_for_who_may_annotate(): void
+    {
+        $author = User::factory()->create();
+        $post = Post::create(['user_id' => $author->id]);
+        $media = $post->addMedia(\Illuminate\Http\UploadedFile::fake()->image('a.jpg', 40, 30))->toMediaCollection('photos');
+        $source = new MediaImageSource($media);
+
+        $empty = $this->store->layers($source, $author);
+
+        $this->assertCount(1, $empty);
+        $this->assertSame(Layer::DEFAULT_KEY, $empty[0]->key);
+        $this->assertNull($empty[0]->label);
+        $this->assertTrue($empty[0]->editable);
+        $this->assertSame([], $empty[0]->items);
+
+        $this->store->save($source, $author, $this->layer());
+
+        $layers = $this->store->layers($source, $author);
+
+        $this->assertCount(1, $layers);
+        $this->assertSame($this->store->shapes($source, $author)['items'], $layers[0]->items);
+
+        $this->assertFalse($this->store->layers($source, User::factory()->create())[0]->editable);
     }
 }

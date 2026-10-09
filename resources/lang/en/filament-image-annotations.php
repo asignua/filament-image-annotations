@@ -16,6 +16,7 @@ return [
         'pen' => 'Pen',
         'highlight' => 'Highlighter',
         'text' => 'Text',
+        'pin' => 'Pin',
     ],
     'colors' => [
         'red' => 'Red',
@@ -51,6 +52,10 @@ return [
         'show' => 'Show annotations',
         'hide' => 'Hide annotations',
         'toggle' => 'Show or hide annotations',
+    ],
+    'layers' => [
+        'label' => 'Layers',
+        'default' => 'Annotations',
     ],
     'action' => [
         'label' => 'Annotate',

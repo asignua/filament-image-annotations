@@ -16,6 +16,7 @@ return [
         'pen' => 'Stift',
         'highlight' => 'Textmarker',
         'text' => 'Text',
+        'pin' => 'Nummerierte Markierung',
     ],
     'colors' => [
         'red' => 'Rot',
@@ -51,6 +52,10 @@ return [
         'show' => 'Anmerkungen anzeigen',
         'hide' => 'Anmerkungen ausblenden',
         'toggle' => 'Anmerkungen ein- oder ausblenden',
+    ],
+    'layers' => [
+        'label' => 'Ebenen',
+        'default' => 'Anmerkungen',
     ],
     'action' => [
         'label' => 'Anmerken',

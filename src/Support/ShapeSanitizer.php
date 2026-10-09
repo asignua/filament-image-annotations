@@ -16,6 +16,8 @@ class ShapeSanitizer
 
     private const array TWO_POINT_TYPES = ['arrow', 'line', 'rect', 'ellipse'];
 
+    public const int MAX_PIN = 999;
+
     private const array STROKE_TYPES = ['pen', 'highlight'];
 
     /**
@@ -46,6 +48,51 @@ class ShapeSanitizer
             if ($item !== null) {
                 $result['items'][] = $item;
             }
+        }
+
+        $result['items'] = self::renumberPins($result['items']);
+
+        return $result;
+    }
+
+    /**
+     * A pin number is unique within the layer: the first pin keeps its number, a later duplicate gets max + 1
+     * (and is dropped when that would pass the bound).
+     *
+     * @param list<array<string, mixed>> $items
+     *
+     * @return list<array<string, mixed>>
+     */
+    private static function renumberPins(array $items): array
+    {
+        $max = 0;
+
+        foreach ($items as $item) {
+            if ($item['type'] === 'pin') {
+                $max = max($max, (int) $item['n']);
+            }
+        }
+
+        $used = [];
+        $result = [];
+
+        foreach ($items as $item) {
+            if ($item['type'] === 'pin') {
+                $n = (int) $item['n'];
+
+                if (isset($used[$n])) {
+                    if ($max >= self::MAX_PIN) {
+                        continue;
+                    }
+
+                    $n = ++$max;
+                    $item['n'] = $n;
+                }
+
+                $used[$n] = true;
+            }
+
+            $result[] = $item;
         }
 
         return $result;
@@ -87,7 +134,31 @@ class ShapeSanitizer
             $item['text'] = $text;
         }
 
+        if ($type === 'pin') {
+            $n = self::pinNumber($raw['n'] ?? null);
+
+            // A pin without a usable number has nothing to anchor a thread to.
+            if ($n === null) {
+                return null;
+            }
+
+            $item['n'] = $n;
+        }
+
         return $item;
+    }
+
+    private static function pinNumber(mixed $value): ?int
+    {
+        if (is_string($value) && preg_match('/^[0-9]{1,4}$/', $value) === 1) {
+            $value = (int) $value;
+        }
+
+        if (is_float($value) && is_finite($value) && floor($value) === $value) {
+            $value = (int) $value;
+        }
+
+        return is_int($value) && $value >= 1 && $value <= self::MAX_PIN ? $value : null;
     }
 
     /**
@@ -105,7 +176,7 @@ class ShapeSanitizer
         $valid = match (true) {
             in_array($type, self::TWO_POINT_TYPES, true) => $count === 2,
             in_array($type, self::STROKE_TYPES, true) => $count >= 2 && $count <= max(2, (int) config('filament-image-annotations.limits.points', 2000)),
-            $type === 'text' => $count === 1,
+            in_array($type, ['text', 'pin'], true) => $count === 1,
             default => false,
         };
 

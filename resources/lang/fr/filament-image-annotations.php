@@ -16,6 +16,7 @@ return [
         'pen' => 'Crayon',
         'highlight' => 'Surligneur',
         'text' => 'Texte',
+        'pin' => 'Repère numéroté',
     ],
     'colors' => [
         'red' => 'Rouge',
@@ -51,6 +52,10 @@ return [
         'show' => 'Afficher les annotations',
         'hide' => 'Masquer les annotations',
         'toggle' => 'Afficher ou masquer les annotations',
+    ],
+    'layers' => [
+        'label' => 'Calques',
+        'default' => 'Annotations',
     ],
     'action' => [
         'label' => 'Annoter',

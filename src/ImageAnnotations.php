@@ -7,6 +7,7 @@ namespace Asignua\FilamentImageAnnotations;
 use Asignua\FilamentImageAnnotations\Contracts\ImageSource;
 use Asignua\FilamentImageAnnotations\Support\AnnotationStore;
 use Asignua\FilamentImageAnnotations\Support\ImageSources;
+use Asignua\FilamentImageAnnotations\Support\Layer;
 use Closure;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Facades\Auth;
@@ -54,6 +55,23 @@ class ImageAnnotations
         $shapes = static::store()->shapes($source, $user);
 
         return $shapes['items'] === [] ? null : $shapes;
+    }
+
+    /**
+     * The non-empty layers to display for the signed-in user; empty when they may not see the image.
+     *
+     * @return list<Layer>
+     */
+    public static function layersFor(mixed $image): array
+    {
+        $source = app(ImageSources::class)->resolve($image);
+        $user = Auth::user();
+
+        if (!$source->canView($user)) {
+            return [];
+        }
+
+        return array_values(array_filter(static::store()->layers($source, $user), static fn (Layer $layer): bool => $layer->items !== []));
     }
 
     public static function store(): AnnotationStore

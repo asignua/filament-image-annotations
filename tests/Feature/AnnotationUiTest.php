@@ -5,17 +5,22 @@ declare(strict_types=1);
 namespace Asignua\FilamentImageAnnotations\Tests\Feature;
 
 use Asignua\FilamentImageAnnotations\Actions\AnnotateImageAction;
+use Asignua\FilamentImageAnnotations\Contracts\ImageSource;
 use Asignua\FilamentImageAnnotations\Forms\Components\ImageAnnotator;
 use Asignua\FilamentImageAnnotations\ImageAnnotations;
 use Asignua\FilamentImageAnnotations\ImageAnnotationsServiceProvider;
 use Asignua\FilamentImageAnnotations\Models\ImageAnnotation;
 use Asignua\FilamentImageAnnotations\Sources\MediaImageSource;
+use Asignua\FilamentImageAnnotations\Support\AnnotationStore;
+use Asignua\FilamentImageAnnotations\Support\Layer;
 use Asignua\FilamentImageAnnotations\Tests\TestCase;
 use Filament\Actions\Testing\TestAction;
 use Filament\Support\Facades\FilamentAsset;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Storage;
+use Livewire\Features\SupportTesting\Testable;
 use Livewire\Livewire;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Workbench\App\Filament\Resources\Posts\Pages\ListPosts;
@@ -129,7 +134,7 @@ class AnnotationUiTest extends TestCase
         $html = Livewire::test(ViewPost::class, ['record' => $this->post->getKey()])->html();
 
         $this->assertStringContainsString($this->media->getUrl(), $html);
-        $this->assertStringContainsString('data-annotations="', $html);
+        $this->assertStringContainsString('data-layers="', $html);
         $this->assertStringContainsString('Check this', $html);
         $this->assertStringContainsString('imageAnnotationsViewer', $html);
     }
@@ -152,7 +157,7 @@ class AnnotationUiTest extends TestCase
         $html = Livewire::test(ViewPost::class, ['record' => $this->post->getKey()])->html();
 
         $this->assertStringContainsString($this->media->getUrl(), $html);
-        $this->assertStringNotContainsString('data-annotations', $html);
+        $this->assertStringNotContainsString('data-layers', $html);
     }
 
     public function test_the_blade_component_shows_the_layer_to_a_user_who_may_view(): void
@@ -162,7 +167,7 @@ class AnnotationUiTest extends TestCase
 
         $html = Blade::render('<x-image-annotations::image :image="$media" alt="Door" />', ['media' => $this->media]);
 
-        $this->assertStringContainsString('data-annotations="', $html);
+        $this->assertStringContainsString('data-layers="', $html);
         $this->assertStringContainsString('alt="Door"', $html);
     }
 
@@ -175,7 +180,7 @@ class AnnotationUiTest extends TestCase
         $html = Blade::render('<x-image-annotations::image :image="$media" alt="Door" />', ['media' => $this->media]);
 
         $this->assertStringContainsString($this->media->getUrl(), $html);
-        $this->assertStringNotContainsString('data-annotations', $html);
+        $this->assertStringNotContainsString('data-layers', $html);
         $this->assertStringNotContainsString('Check this', $html);
     }
 
@@ -185,7 +190,7 @@ class AnnotationUiTest extends TestCase
 
         $html = Blade::render('<x-image-annotations::image :image="$media" />', ['media' => $this->media]);
 
-        $this->assertStringNotContainsString('data-annotations', $html);
+        $this->assertStringNotContainsString('data-layers', $html);
     }
 
     public function test_the_field_resolves_its_image_url(): void
@@ -194,5 +199,138 @@ class AnnotationUiTest extends TestCase
 
         $this->assertSame($this->media->getUrl(), $field->getImageUrl());
         $this->assertNull(ImageAnnotator::make('x')->getImageUrl());
+    }
+
+    /**
+     * The HTML of the mounted action's modal form (the page's own html() does not carry it).
+     */
+    private function editorHtml(Testable $component): string
+    {
+        return $component->getMountedActionModalHtml();
+    }
+
+    /**
+     * Rebinds the store with a second, read-only layer of another author (what the pro package does).
+     */
+    private function withForeignLayer(): void
+    {
+        $this->app->singleton(AnnotationStore::class, fn (): AnnotationStore => new class extends AnnotationStore
+        {
+            public function layers(ImageSource $source, ?Authenticatable $user): array
+            {
+                $other = [['id' => 'f1', 'type' => 'pin', 'pts' => [[0.5, 0.5]], 'color' => 'blue', 'width' => 4, 'n' => 1]];
+
+                return [
+                    ...parent::layers($source, $user),
+                    new Layer('user-9', 'Foreign Reviewer', '#3b82f6', $other, false, ['author_id' => 9]),
+                ];
+            }
+        });
+    }
+
+    public function test_the_free_editor_has_no_underlays_and_no_pin_tool(): void
+    {
+        $this->actingAs($this->author);
+
+        $html = $this->editorHtml(Livewire::test(ListPosts::class)->mountAction($this->annotate()));
+
+        $this->assertStringContainsString("setTool('arrow')", $html);
+        $this->assertStringNotContainsString("setTool('pin')", $html);
+        $this->assertStringNotContainsString('data-layer-chips', $html);
+        $this->assertStringContainsString('x-ref="under"', $html);
+    }
+
+    public function test_the_field_filters_tools_by_config_and_per_field(): void
+    {
+        $this->assertSame(['select', 'arrow', 'rect', 'ellipse', 'line', 'pen', 'highlight', 'text'], ImageAnnotator::make('a')->getTools());
+        $this->assertSame(['arrow', 'pin'], ImageAnnotator::make('a')->tools(['pin', 'bogus', 'arrow'])->getTools());
+
+        config(['filament-image-annotations.tools' => ['select', 'pin']]);
+
+        $this->assertSame(['select', 'pin'], ImageAnnotator::make('a')->getTools());
+    }
+
+    public function test_the_enabled_pin_tool_reaches_the_view(): void
+    {
+        config(['filament-image-annotations.tools' => ['select', 'arrow', 'pin']]);
+        $this->actingAs($this->author);
+
+        $html = $this->editorHtml(Livewire::test(ListPosts::class)->mountAction($this->annotate()));
+
+        $this->assertStringContainsString("setTool('pin')", $html);
+        $this->assertStringNotContainsString("setTool('rect')", $html);
+    }
+
+    public function test_underlays_are_shown_in_the_editor_but_not_saved_into_its_state(): void
+    {
+        $this->withForeignLayer();
+        $this->actingAs($this->author);
+
+        $component = Livewire::test(ListPosts::class)->mountAction($this->annotate());
+        $html = $this->editorHtml($component);
+
+        $this->assertStringContainsString('data-layer-chips', $html);
+        $this->assertStringContainsString('Foreign Reviewer', $html);
+        $this->assertStringContainsString('user-9', $html);
+
+        $component->assertActionDataSet(fn (array $data): bool => $data['annotations']['items'] === []);
+
+        Livewire::test(ListPosts::class)->callAction($this->annotate(), ['annotations' => $this->layer('Mine')])->assertHasNoActionErrors();
+
+        $this->assertSame(['a1', 't1'], array_column(ImageAnnotation::query()->sole()->shapes['items'], 'id'));
+    }
+
+    public function test_the_underlays_closure_and_layer_key_are_configurable_on_the_field(): void
+    {
+        $field = ImageAnnotator::make('a')
+            ->underlays(fn (): array => [new Layer('x', 'X', null, []), 'junk'])
+            ->layerKey('mine');
+
+        $this->assertCount(1, $field->getUnderlays());
+        $this->assertSame('mine', $field->getLayerKey());
+        $this->assertSame([], ImageAnnotator::make('b')->getUnderlays());
+        $this->assertSame(Layer::DEFAULT_KEY, ImageAnnotator::make('b')->getLayerKey());
+    }
+
+    public function test_the_viewer_outputs_every_layer(): void
+    {
+        $this->withForeignLayer();
+        $this->actingAs($this->author);
+        $this->store();
+
+        $html = Livewire::test(ViewPost::class, ['record' => $this->post->getKey()])->html();
+
+        $this->assertStringContainsString('data-layers="', $html);
+        $this->assertStringContainsString('&quot;key&quot;:&quot;default&quot;', $html);
+        $this->assertStringContainsString('&quot;key&quot;:&quot;user-9&quot;', $html);
+        $this->assertStringContainsString('Foreign Reviewer', $html);
+        $this->assertStringContainsString('data-layer-chips', $html);
+        $this->assertStringContainsString('pinClick($event)', $html);
+    }
+
+    public function test_a_stored_pin_reaches_the_viewer(): void
+    {
+        $this->actingAs($this->author);
+        ImageAnnotations::store()->save(new MediaImageSource($this->media), $this->author, ['v' => 1, 'items' => [
+            ['id' => 'p1', 'type' => 'pin', 'pts' => [[0.2, 0.2]], 'color' => 'red', 'width' => 4, 'n' => 3],
+        ]]);
+
+        $html = Livewire::test(ViewPost::class, ['record' => $this->post->getKey()])->html();
+
+        $this->assertStringContainsString('&quot;type&quot;:&quot;pin&quot;', $html);
+        $this->assertStringContainsString('&quot;n&quot;:3', $html);
+    }
+
+    public function test_layers_for_is_empty_without_permission_or_content(): void
+    {
+        $this->store();
+
+        $this->assertSame([], ImageAnnotations::layersFor($this->media));
+
+        $this->actingAs(User::factory()->create());
+        $this->assertSame([], ImageAnnotations::layersFor($this->media));
+
+        $this->actingAs($this->author);
+        $this->assertCount(1, ImageAnnotations::layersFor($this->media));
     }
 }

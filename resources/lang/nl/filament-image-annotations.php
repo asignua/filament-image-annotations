@@ -16,6 +16,7 @@ return [
         'pen' => 'Pen',
         'highlight' => 'Markeerstift',
         'text' => 'Tekst',
+        'pin' => 'Genummerde markering',
     ],
     'colors' => [
         'red' => 'Rood',
@@ -51,6 +52,10 @@ return [
         'show' => 'Annotaties tonen',
         'hide' => 'Annotaties verbergen',
         'toggle' => 'Annotaties tonen of verbergen',
+    ],
+    'layers' => [
+        'label' => 'Lagen',
+        'default' => 'Aantekeningen',
     ],
     'action' => [
         'label' => 'Annoteren',

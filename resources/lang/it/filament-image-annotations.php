@@ -16,6 +16,7 @@ return [
         'pen' => 'Penna',
         'highlight' => 'Evidenziatore',
         'text' => 'Testo',
+        'pin' => 'Segnaposto numerato',
     ],
     'colors' => [
         'red' => 'Rosso',
@@ -51,6 +52,10 @@ return [
         'show' => 'Mostra annotazioni',
         'hide' => 'Nascondi annotazioni',
         'toggle' => 'Mostra o nascondi le annotazioni',
+    ],
+    'layers' => [
+        'label' => 'Livelli',
+        'default' => 'Annotazioni',
     ],
     'action' => [
         'label' => 'Annota',

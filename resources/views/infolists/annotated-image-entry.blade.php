@@ -4,7 +4,7 @@
     @if ($url)
         @include('filament-image-annotations::viewer', [
             'url' => $url,
-            'items' => $getAnnotations(),
+            'layers' => $getLayers(),
             'alt' => $getAlt(),
             'wrapperStyle' => 'border-radius:0.5rem;overflow:hidden',
         ])

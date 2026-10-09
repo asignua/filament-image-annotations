@@ -10,8 +10,10 @@
     $limits = config('filament-image-annotations.limits');
     $t = fn (string $key, array $replace = []): string => __('filament-image-annotations::filament-image-annotations.'.$key, $replace);
 
+    $underlays = array_map(static fn ($layer): array => $layer->toArray(), $getUnderlays());
+
     // Tool => [label key, shortcut, svg markup (24x24, stroke = currentColor)].
-    $tools = [
+    $allTools = [
         'select' => ['V', '<path d="M5 3l14 7-6 2-2 6z"/>'],
         'arrow' => ['A', '<path d="M5 19L19 5M19 5h-8M19 5v8"/>'],
         'rect' => ['R', '<rect x="4" y="6" width="16" height="12" rx="1"/>'],
@@ -20,7 +22,10 @@
         'pen' => ['P', '<path d="M4 20l1-4L16 5l3 3L8 19z"/>'],
         'highlight' => ['H', '<path d="M4 21h16M8 17l8-8 3 3-8 8H8z"/>'],
         'text' => ['T', '<path d="M5 6h14M12 6v13M9 19h6"/>'],
+        'pin' => ['N', '<circle cx="12" cy="12" r="8"/><path d="M12 8v8M10 10l2-2"/>'],
     ];
+    $enabledTools = $getTools();
+    $tools = array_intersect_key($allTools, array_flip($enabledTools));
 
     $buttonStyle = 'display:inline-flex;align-items:center;justify-content:center;width:2.25rem;height:2.25rem;border-radius:0.5rem;border:1px solid rgba(128,128,128,.35);background:transparent;color:inherit;cursor:pointer;padding:0';
 @endphp
@@ -36,6 +41,9 @@
                 widths: {{ Js::from($widths) }},
                 limits: {{ Js::from($limits) }},
                 labels: {{ Js::from(['limit' => $t('limit', ['count' => $limits['shapes']])]) }},
+                tools: {{ Js::from($enabledTools) }},
+                underlays: {{ Js::from($underlays) }},
+                layer: {{ Js::from($getLayerKey()) }},
             })"
             x-ref="root"
             x-on:keydown="keys($event)"
@@ -126,6 +134,10 @@
                 </div>
             </div>
 
+            @if ($underlays !== [])
+                @include('filament-image-annotations::partials.layer-chips', ['list' => 'underlays', 'style' => ''])
+            @endif
+
             <p x-show="hint" x-cloak x-text="hint" role="status" class="fi-fo-field-wrp-hint"></p>
 
             <div style="display:flex;justify-content:center;overflow:auto">
@@ -147,6 +159,7 @@
                         x-on:load="imageLoaded()"
                         style="display:block;max-width:100%;max-height:70vh;border-radius:0.25rem"
                     />
+                    <svg x-ref="under" aria-hidden="true" focusable="false" style="position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none"></svg>
                     <svg x-ref="svg" aria-hidden="true" focusable="false" style="position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none"></svg>
 
                     <template x-if="editor">

@@ -6,6 +6,7 @@ namespace Asignua\FilamentImageAnnotations\Infolists\Components;
 
 use Asignua\FilamentImageAnnotations\Concerns\InteractsWithImage;
 use Asignua\FilamentImageAnnotations\ImageAnnotations;
+use Asignua\FilamentImageAnnotations\Support\Layer;
 use Closure;
 use Filament\Infolists\Components\Entry;
 
@@ -41,13 +42,13 @@ class AnnotatedImageEntry extends Entry
     }
 
     /**
-     * @return array{v: int, items: list<array<string, mixed>>}|null
+     * @return list<Layer>
      */
-    public function getAnnotations(): ?array
+    public function getLayers(): array
     {
         $source = $this->getImageSource();
 
-        return $source === null ? null : ImageAnnotations::for($source);
+        return $source === null ? [] : ImageAnnotations::layersFor($source);
     }
 
     protected function getImageValue(): mixed

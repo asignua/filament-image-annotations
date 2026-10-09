@@ -8,9 +8,11 @@
  *
  * Pointer events cover mouse, touch and pen. The original image is never modified.
  */
-import { renderShapes, resolveColor, strokeWidth, VIEW_WIDTH } from './render.js'
+import { emit, layerToggles, renderLayers, renderShapes, resolveColor, strokeWidth, VIEW_WIDTH } from './render.js'
 
-const SHORTCUTS = { v: 'select', a: 'arrow', r: 'rect', e: 'ellipse', l: 'line', p: 'pen', h: 'highlight', t: 'text' }
+const SHORTCUTS = { v: 'select', a: 'arrow', r: 'rect', e: 'ellipse', l: 'line', p: 'pen', h: 'highlight', t: 'text', n: 'pin' }
+
+const MAX_PIN = 999
 
 const HISTORY_LIMIT = 100
 
@@ -20,7 +22,7 @@ const clone = (value) => JSON.parse(JSON.stringify(value))
 
 const newId = () => Math.random().toString(36).slice(2, 12).padEnd(10, '0')
 
-export default function imageAnnotator({ state, palette = {}, widths = [2, 4, 8], limits = {}, labels = {} }) {
+export default function imageAnnotator({ state, palette = {}, widths = [2, 4, 8], limits = {}, labels = {}, tools = [], underlays = [], layer = 'default' }) {
     const maxShapes = limits.shapes ?? 200
     const maxPoints = limits.points ?? 2000
     const maxText = limits.text ?? 500
@@ -45,7 +47,15 @@ export default function imageAnnotator({ state, palette = {}, widths = [2, 4, 8]
 
         widths,
 
-        tool: 'arrow',
+        // The first enabled tool, `arrow` when it is among them.
+        tool: tools.includes('arrow') || tools.length === 0 ? 'arrow' : tools[0],
+
+        tools,
+
+        // Read-only layers drawn below the editable one: never selectable, never part of `state`.
+        underlays,
+
+        ...layerToggles(),
 
         color: colorNames[0] ?? '#ef4444',
 
@@ -175,6 +185,7 @@ export default function imageAnnotator({ state, palette = {}, widths = [2, 4, 8]
 
             this.fit()
             this.redraw()
+            this.drawLayers()
         },
 
         // ---- drawing ------------------------------------------------------------------------------
@@ -210,6 +221,14 @@ export default function imageAnnotator({ state, palette = {}, widths = [2, 4, 8]
                 frame.setAttribute('pointer-events', 'none')
                 frame.setAttribute('data-selection', 'true')
                 svg.appendChild(frame)
+            }
+        },
+
+        drawLayers() {
+            const svg = this.$refs.under
+
+            if (svg) {
+                renderLayers(svg, underlays, { palette, aspect, hidden: this.hidden })
             }
         },
 
@@ -292,6 +311,10 @@ export default function imageAnnotator({ state, palette = {}, widths = [2, 4, 8]
 
                 this.selectedId = item?.id ?? null
 
+                if (item?.type === 'pin') {
+                    emit(this.$el, 'pin-click', { layer, id: item.id, n: item.n })
+                }
+
                 if (item) {
                     this.color = this.palette[item.color] !== undefined ? item.color : this.color
                     this.width = item.width ?? this.width
@@ -312,6 +335,12 @@ export default function imageAnnotator({ state, palette = {}, widths = [2, 4, 8]
                 return
             }
 
+            if (this.tool === 'pin') {
+                this.placePin(p)
+
+                return
+            }
+
             if (this.tool === 'text') {
                 this.editor = { x: p[0], y: p[1], id: null, text: '', color: this.color }
                 this.$nextTick(() => this.$refs.editor?.focus())
@@ -325,6 +354,21 @@ export default function imageAnnotator({ state, palette = {}, widths = [2, 4, 8]
             drag = { kind: 'draw' }
             this.$refs.surface.setPointerCapture?.(event.pointerId)
             this.redraw()
+        },
+
+        // A click drops the next number (highest in this layer + 1) and is committed at once.
+        placePin(p) {
+            const n = items.reduce((max, item) => (item.type === 'pin' ? Math.max(max, Number(item.n) || 0) : max), 0) + 1
+
+            if (n > MAX_PIN) {
+                return
+            }
+
+            const pin = { id: newId(), type: 'pin', pts: [p], color: this.color, width: this.width, n }
+
+            items.push(pin)
+            this.commit()
+            emit(this.$el, 'pin-added', { id: pin.id, n })
         },
 
         move(event) {
@@ -649,7 +693,7 @@ export default function imageAnnotator({ state, palette = {}, widths = [2, 4, 8]
                 return
             }
 
-            if (SHORTCUTS[key] && !event.shiftKey) {
+            if (SHORTCUTS[key] && tools.includes(SHORTCUTS[key]) && !event.shiftKey) {
                 event.preventDefault()
                 this.setTool(SHORTCUTS[key])
             }
@@ -681,6 +725,7 @@ export default function imageAnnotator({ state, palette = {}, widths = [2, 4, 8]
             this.state = { v: 1, items: clone(items) }
             this.updateFlags()
             this.redraw()
+            emit(this.$el, 'change', { items: clone(items) })
         },
 
         updateFlags() {

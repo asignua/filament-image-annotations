@@ -1,13 +1,15 @@
 /*
  * Alpine component of the read-only viewer: the image with the annotation layer drawn over it and a toggle.
- * The layer and palette travel in data attributes (`data-annotations`, `data-palette`), so the markup stays
+ * The layers and palette travel in data attributes (`data-layers`, `data-palette`), so the markup stays
  * valid for any content; the original image is never touched.
  */
-import { renderShapes } from './render.js'
+import { emit, layerToggles, renderLayers } from './render.js'
 
 export default function imageAnnotationsViewer() {
     return {
-        items: [],
+        ...layerToggles(),
+
+        layers: [],
 
         raw: '',
 
@@ -20,7 +22,7 @@ export default function imageAnnotationsViewer() {
         aspect: 0.75,
 
         get count() {
-            return this.items.length
+            return this.layers.reduce((sum, layer) => sum + (layer.items?.length ?? 0), 0)
         },
 
         init() {
@@ -33,10 +35,10 @@ export default function imageAnnotationsViewer() {
             }
 
             // A Livewire morph (a modal opened on the same page, a re-render after saving) resets the <svg> to the
-            // empty one the server sent and may bring a new layer in `data-annotations`: follow both.
+            // empty one the server sent and may bring new layers in `data-layers`: follow both.
             if (typeof MutationObserver !== 'undefined') {
                 this.observer = new MutationObserver(() => this.resync())
-                this.observer.observe(this.$el, { attributes: true, attributeFilter: ['data-annotations'] })
+                this.observer.observe(this.$el, { attributes: true, attributeFilter: ['data-layers'] })
 
                 if (this.$refs.svg) {
                     this.observer.observe(this.$refs.svg, { childList: true })
@@ -49,22 +51,22 @@ export default function imageAnnotationsViewer() {
         },
 
         read() {
-            this.raw = this.$el.dataset.annotations ?? ''
+            this.raw = this.$el.dataset.layers ?? ''
 
             try {
-                const layer = JSON.parse(this.raw || 'null')
-                this.items = Array.isArray(layer?.items) ? layer.items : []
+                const layers = JSON.parse(this.raw || 'null')
+                this.layers = Array.isArray(layers) ? layers : []
                 this.palette = JSON.parse(this.$el.dataset.palette ?? '{}') ?? {}
             } catch (error) {
-                this.items = []
+                this.layers = []
             }
         },
 
         resync() {
-            if ((this.$el.dataset.annotations ?? '') !== this.raw) {
+            if ((this.$el.dataset.layers ?? '') !== this.raw) {
                 this.read()
                 this.draw()
-            } else if (this.items.length > 0 && this.$refs.svg?.childElementCount === 0) {
+            } else if (this.count > 0 && this.$refs.svg?.childElementCount === 0) {
                 this.draw()
             }
         },
@@ -81,8 +83,27 @@ export default function imageAnnotationsViewer() {
 
         draw() {
             if (this.$refs.svg) {
-                renderShapes(this.$refs.svg, this.items, { palette: this.palette, aspect: this.aspect })
+                renderLayers(this.$refs.svg, this.layers, { palette: this.palette, aspect: this.aspect, interactive: true, hidden: this.hidden })
             }
+        },
+
+        drawLayers() {
+            this.draw()
+        },
+
+        // A click on a numbered pin: the pro package (or the host) listens for `image-annotations:pin-click`.
+        pinClick(event) {
+            const pin = event.target instanceof Element ? event.target.closest('[data-pin]') : null
+
+            if (!pin) {
+                return
+            }
+
+            emit(this.$el, 'pin-click', {
+                layer: pin.closest('[data-layer]')?.getAttribute('data-layer') ?? null,
+                id: pin.getAttribute('data-id'),
+                n: Number(pin.getAttribute('data-pin')),
+            })
         },
 
         toggle() {

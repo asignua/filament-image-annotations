@@ -178,6 +178,7 @@ ImageAnnotations::store()->forget($source);          // removes the layer, no au
 | Pen | `P` | Freehand, smoothed. |
 | Highlighter | `H` | A wide, translucent stroke. |
 | Text | `T` | Click, type; `Enter` adds, `Shift+Enter` is a new line, `Esc` cancels. |
+| Pin | `N` | A numbered marker; each click places the next number. **Off by default**, see [Extending](#extending). |
 
 | Shortcut | Action |
 | --- | --- |
@@ -311,7 +312,8 @@ The trait removes the rows on a **hard** delete only; a soft-deleted record can 
 ## Front end
 
 `<x-image-annotations::image>` and `AnnotatedImageEntry` render the image, an `<svg>` overlay and a toggle. The layer is
-passed as escaped JSON in a `data-annotations` attribute and drawn by an Alpine component.
+passed as escaped JSON in a `data-layers` attribute (`[{key, label, color, items}]`) and drawn by an Alpine component. With two or
+more layers a chip per layer appears next to the show/hide toggle.
 
 On a public page the viewer needs **Alpine and Filament's asset route** (the component is fetched with `x-load` from
 Filament's assets, run `php artisan filament:assets`). **Without them the plain image renders**: no overlay, nothing
@@ -330,6 +332,34 @@ A paid **Pro** package is planned, built on the hooks already here (`AnnotationS
 - **Chat integration**: annotate the image attachments of `asignua/filament-chat-pro` conversations.
 
 Coming soon.
+
+## Extending
+
+The free package is the base of the Pro one (layers per author, numbered pins with threads); these are the seams, all inert
+until something uses them.
+
+**Layers.** `AnnotationStore::layers($source, $user)` returns a `list<Support\Layer>` (`key`, `label`, `color`, `items`,
+`editable`, `meta`). Free returns one layer, `default`, editable when the user may annotate. Rebind the store to return more:
+the viewer draws every layer with a chip each, and `AnnotateImageAction` passes the non-editable ones to the editor as
+read-only *underlays* (drawn below, not selectable, never saved into the state; visibility toggles are client-side only).
+Use them on a hand-built field with `ImageAnnotator::make('x')->underlays([...])->layerKey('mine')`.
+`ImageAnnotations::layersFor($image)` is the permission-aware list of non-empty layers.
+
+**Tools.** The toolbar comes from config `tools` (default: all but `pin`) or per field: `ImageAnnotator::make('x')->tools(['select', 'arrow', 'pin'])`.
+
+**Pins.** Shape `pin`: one point plus an integer `n` (1..999). The sanitizer drops a pin with a missing or out-of-range `n`
+and renumbers duplicates within a layer to `max + 1`. A pin renders as a filled circle with a white number and carries
+`data-id` and `data-pin` on its SVG group. The `pin` tool (key `N`) places the highest number + 1.
+
+**JS events** (bubbling `CustomEvent`s, nothing in the free package listens to them):
+
+| Event | `detail` | Fired |
+| --- | --- | --- |
+| `image-annotations:pin-click` | `{layer, id, n}` | click on a pin in the viewer, or with the select tool in the editor |
+| `image-annotations:change` | `{items}` | every committed change in the editor (draw, move, undo, ...) |
+| `image-annotations:pin-added` | `{id, n}` | the pin tool placed a pin |
+
+    document.addEventListener('image-annotations:pin-click', (e) => openThread(e.detail.layer, e.detail.n))
 
 ## Gotchas
 

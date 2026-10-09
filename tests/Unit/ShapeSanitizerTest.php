@@ -239,4 +239,81 @@ class ShapeSanitizerTest extends TestCase
 
         $this->assertCount(3, $items);
     }
+
+    /**
+     * @param array<string, mixed> $override
+     *
+     * @return array<string, mixed>
+     */
+    private function pin(array $override = []): array
+    {
+        return array_merge(['id' => 'p1', 'type' => 'pin', 'pts' => [[0.3, 0.4]], 'color' => 'red', 'width' => 4, 'n' => 1], $override);
+    }
+
+    public function test_a_valid_pin_is_kept_with_its_number(): void
+    {
+        $items = $this->items($this->pin(['n' => 7]));
+
+        $this->assertCount(1, $items);
+        $this->assertSame('pin', $items[0]['type']);
+        $this->assertSame(7, $items[0]['n']);
+        $this->assertEquals([[0.3, 0.4]], $items[0]['pts']);
+    }
+
+    public function test_a_pin_needs_exactly_one_point(): void
+    {
+        $this->assertSame([], $this->items($this->pin(['pts' => [[0.1, 0.1], [0.2, 0.2]]])));
+        $this->assertSame([], $this->items($this->pin(['pts' => []])));
+    }
+
+    /**
+     * @return iterable<string, array{mixed}>
+     */
+    public static function badPinNumbers(): iterable
+    {
+        yield 'missing' => [null];
+        yield 'zero' => [0];
+        yield 'negative' => [-3];
+        yield 'above the bound' => [1000];
+        yield 'fraction' => [1.5];
+        yield 'text' => ['abc'];
+        yield 'bool' => [true];
+    }
+
+    #[DataProvider('badPinNumbers')]
+    public function test_a_pin_without_a_usable_number_is_dropped(mixed $n): void
+    {
+        $this->assertSame([], $this->items($this->pin(['n' => $n])));
+    }
+
+    public function test_the_bounds_of_a_pin_number_are_inclusive_and_numeric_strings_are_accepted(): void
+    {
+        $items = $this->items($this->pin(['id' => 'a', 'n' => 1]), $this->pin(['id' => 'b', 'n' => 999]), $this->pin(['id' => 'c', 'n' => '5']));
+
+        $this->assertSame([1, 999, 5], array_column($items, 'n'));
+    }
+
+    public function test_duplicate_pin_numbers_are_renumbered_to_max_plus_one(): void
+    {
+        $items = $this->items(
+            $this->pin(['id' => 'a', 'n' => 3]),
+            $this->pin(['id' => 'b', 'n' => 3]),
+            $this->pin(['id' => 'c', 'n' => 5]),
+            $this->pin(['id' => 'd', 'n' => 3]),
+        );
+
+        $this->assertSame([3, 6, 5, 7], array_column($items, 'n'));
+    }
+
+    public function test_a_duplicate_that_cannot_be_renumbered_is_dropped(): void
+    {
+        $items = $this->items($this->pin(['id' => 'a', 'n' => 999]), $this->pin(['id' => 'b', 'n' => 999]));
+
+        $this->assertSame(['a'], array_column($items, 'id'));
+    }
+
+    public function test_only_pins_carry_a_number(): void
+    {
+        $this->assertArrayNotHasKey('n', $this->items($this->rect(['n' => 4]))[0]);
+    }
 }

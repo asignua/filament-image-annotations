@@ -70,7 +70,7 @@ function smoothPath(points) {
 }
 
 function buildItem(item, ctx) {
-    const { height, palette, scale } = ctx
+    const { height, palette, scale, interactive } = ctx
     const points = (item.pts ?? []).map(([x, y]) => [x * VIEW_WIDTH, y * height])
     const color = resolveColor(item.color, palette)
     const width = strokeWidth(item, scale)
@@ -165,6 +165,39 @@ function buildItem(item, ctx) {
             break
         }
 
+        case 'pin': {
+            const radius = Math.max(14, 10 + (Number(item.width) || 4) * 2.5) * scale
+            const [cx, cy] = points[0]
+            const label = String(item.n ?? '')
+            const dark = color.toLowerCase() === '#ffffff'
+
+            group.setAttribute('data-pin', label)
+
+            if (interactive) {
+                // The overlay <svg> itself ignores the pointer; only the pins take clicks.
+                group.setAttribute('pointer-events', 'all')
+                group.style.cursor = 'pointer'
+            }
+
+            group.appendChild(el('circle', { cx: round(cx), cy: round(cy), r: round(radius), fill: color, stroke: dark ? '#111827' : '#ffffff', 'stroke-width': round(radius * 0.14) }))
+
+            const number = el('text', {
+                x: round(cx),
+                y: round(cy),
+                fill: dark ? '#111827' : '#ffffff',
+                'text-anchor': 'middle',
+                'dominant-baseline': 'central',
+                'font-size': round(radius * (label.length > 2 ? 0.85 : label.length > 1 ? 1.05 : 1.25)),
+                'font-weight': 700,
+                'font-family': 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
+            })
+
+            number.textContent = label
+            group.appendChild(number)
+
+            break
+        }
+
         case 'text': {
             const size = fontSize(item, scale)
             const lines = String(item.text ?? '').split('\n')
@@ -200,18 +233,74 @@ function buildItem(item, ctx) {
 
 /**
  * Clears and redraws `svg`. `aspect` is naturalHeight / naturalWidth, `scale` an extra multiplier for strokes
- * and text (1 by default).
+ * and text (1 by default). `interactive` makes pins accept pointer events (the viewer).
  */
-export function renderShapes(svg, items, { palette = {}, aspect = 0.75, scale = 1 } = {}) {
+export function renderShapes(svg, items, { palette = {}, aspect = 0.75, scale = 1, interactive = false } = {}) {
+    const height = prepare(svg, aspect)
+
+    for (const item of items ?? []) {
+        svg.appendChild(buildItem(item, { height, palette, scale, interactive }))
+    }
+
+    return height
+}
+
+/**
+ * Like renderShapes() for several layers: one <g data-layer="key"> per layer, in the given order, skipping the
+ * keys in `hidden` (an object key => true).
+ */
+export function renderLayers(svg, layers, { palette = {}, aspect = 0.75, scale = 1, interactive = false, hidden = {} } = {}) {
+    const height = prepare(svg, aspect)
+
+    for (const layer of layers ?? []) {
+        if (hidden[layer.key]) {
+            continue
+        }
+
+        const group = el('g', { 'data-layer': layer.key })
+
+        for (const item of layer.items ?? []) {
+            group.appendChild(buildItem(item, { height, palette, scale, interactive }))
+        }
+
+        svg.appendChild(group)
+    }
+
+    return height
+}
+
+function prepare(svg, aspect) {
     const height = VIEW_WIDTH * (aspect > 0 ? aspect : 0.75)
 
     svg.setAttribute('viewBox', `0 0 ${VIEW_WIDTH} ${round(height)}`)
     svg.setAttribute('preserveAspectRatio', 'none')
     svg.replaceChildren()
 
-    for (const item of items ?? []) {
-        svg.appendChild(buildItem(item, { height, palette, scale }))
-    }
-
     return height
+}
+
+/**
+ * Per-layer show/hide state shared by the editor (underlays) and the viewer. Spread into the Alpine component;
+ * the component defines `drawLayers()`. Visibility is client-side only.
+ */
+export function layerToggles() {
+    return {
+        hidden: {},
+
+        isShown(key) {
+            return !this.hidden[key]
+        },
+
+        toggleLayer(key) {
+            this.hidden = { ...this.hidden, [key]: !this.hidden[key] }
+            this.drawLayers()
+        },
+    }
+}
+
+/**
+ * Bubbling CustomEvent from `root`, the extension point for the pro package (see README "Extending").
+ */
+export function emit(root, name, detail) {
+    root?.dispatchEvent(new CustomEvent(`image-annotations:${name}`, { bubbles: true, detail }))
 }
