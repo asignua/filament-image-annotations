@@ -2,8 +2,9 @@
 
 All notable changes to `asignua/filament-image-annotations` are documented here.
 
-## Unreleased
+## v1.1.0 - 2026-10-09
 
+- First public release (versioned 1.1.0: the Pro add-on and early adopters already require ^1.1).
 - `AnnotateImageAction` dispatches the Livewire event `image-annotations:saved` (payload `image` = `ImageAnnotations::imageId()`) after a save; the viewer keeps its width next to a side panel; workbench builds the `public/storage` link.
 - Non-destructive annotation layer for images: arrows, rectangles, ellipses, lines, a pen, a highlighter and text, stored
   as sanitised JSON (normalised coordinates) in an own table; the original file is never modified.
