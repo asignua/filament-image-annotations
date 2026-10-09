@@ -58,4 +58,8 @@ return [
         'save' => 'Anmerkungen speichern',
         'saved' => 'Anmerkungen gespeichert',
     ],
+    'upload' => [
+        'save_first' => 'Datensatz zuerst speichern, dann annotieren',
+        'shapes' => 'Formen: :count',
+    ],
 ];

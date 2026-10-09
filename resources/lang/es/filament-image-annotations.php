@@ -58,4 +58,8 @@ return [
         'save' => 'Guardar anotaciones',
         'saved' => 'Anotaciones guardadas',
     ],
+    'upload' => [
+        'save_first' => 'Guarda primero el registro y luego anota',
+        'shapes' => 'Formas: :count',
+    ],
 ];

@@ -58,4 +58,8 @@ return [
         'save' => 'Enregistrer les annotations',
         'saved' => 'Annotations enregistrées',
     ],
+    'upload' => [
+        'save_first' => 'Enregistrez d\'abord l\'élément, puis annotez',
+        'shapes' => 'Formes : :count',
+    ],
 ];

@@ -35,6 +35,7 @@ return new class extends Migration
         Schema::create('notes', function (Blueprint $table): void {
             $table->id();
             $table->string('photo')->nullable();
+            $table->string('image')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

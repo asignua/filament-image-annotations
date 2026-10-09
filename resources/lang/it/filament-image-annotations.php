@@ -58,4 +58,8 @@ return [
         'save' => 'Salva annotazioni',
         'saved' => 'Annotazioni salvate',
     ],
+    'upload' => [
+        'save_first' => 'Salva prima il record, poi annota',
+        'shapes' => 'Forme: :count',
+    ],
 ];

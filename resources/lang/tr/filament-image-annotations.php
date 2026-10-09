@@ -58,4 +58,8 @@ return [
         'save' => 'Notları kaydet',
         'saved' => 'Notlar kaydedildi',
     ],
+    'upload' => [
+        'save_first' => 'Önce kaydı kaydedin, sonra not ekleyin',
+        'shapes' => 'Şekiller: :count',
+    ],
 ];

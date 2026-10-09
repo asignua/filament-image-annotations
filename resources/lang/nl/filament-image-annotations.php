@@ -58,4 +58,8 @@ return [
         'save' => 'Annotaties opslaan',
         'saved' => 'Annotaties opgeslagen',
     ],
+    'upload' => [
+        'save_first' => 'Sla eerst het record op en annoteer daarna',
+        'shapes' => 'Vormen: :count',
+    ],
 ];

@@ -15,6 +15,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  *
  * @property int $id
  * @property string|null $photo
+ * @property string|null $image
  */
 class Note extends Model implements HasMedia
 {

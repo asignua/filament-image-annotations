@@ -58,4 +58,8 @@ return [
         'save' => 'Zapisz adnotacje',
         'saved' => 'Adnotacje zapisane',
     ],
+    'upload' => [
+        'save_first' => 'Najpierw zapisz rekord, potem dodaj adnotacje',
+        'shapes' => 'Kształty: :count',
+    ],
 ];

@@ -1,14 +1,18 @@
 {
     "name": "asignua/filament-image-annotations",
-    "description": "Non-destructive vector annotations for Filament: arrows, rectangles, ellipses, lines, a pen, a highlighter and text drawn over an image as a separate JSON layer. The original file is never modified.",
+    "description": "Non-destructive vector annotations for Filament 5: arrows, rectangles, ellipses, lines, a pen, a highlighter and text drawn over an image as a separate JSON layer, with an editor, a read-only viewer and an Annotate button for uploads. The original file is never modified.",
     "keywords": [
         "filament",
         "filament-plugin",
+        "filament-5",
         "laravel",
         "image",
+        "image-annotation",
         "annotations",
         "markup",
-        "media-library"
+        "drawing",
+        "spatie-media-library",
+        "file-upload"
     ],
     "homepage": "https://github.com/asignua/filament-image-annotations",
     "support": {
