@@ -159,8 +159,8 @@ function buildItem(item, ctx) {
         }
 
         case 'highlight': {
-            group.setAttribute('style', 'mix-blend-mode:multiply')
-            group.appendChild(el('path', { ...stroke, 'stroke-width': round(width * 4), 'stroke-opacity': 0.35, d: smoothPath(points) }))
+            // No mix-blend-mode: multiply turns yellow into grey on a dark screenshot (and a highlighter is used on both).
+            group.appendChild(el('path', { ...stroke, 'stroke-width': round(width * 4), 'stroke-opacity': 0.45, d: smoothPath(points) }))
 
             break
         }
