@@ -38,11 +38,12 @@ class PanelsTest extends TestCase
 
         $this->assertStringContainsString('data-ia-scope', $html);
         $this->assertStringContainsString('data-test-panel="viewer"', $html);
-        $this->assertStringContainsString('min-width:min(24rem,100%)', $html);
+        // The viewer keeps the width of the picture (no min-width): a wider box would misalign the overlay.
+        $this->assertStringContainsString('flex:0 1 auto;', $html);
+        $this->assertStringNotContainsString('min-width:min(', $html);
 
         ImageAnnotations::flushPanels();
 
-        $this->assertStringNotContainsString('min-width:min(24rem', Blade::render('<x-image-annotations::image :image="$media" />', ['media' => $media]));
         $this->assertStringNotContainsString('data-ia-scope', Blade::render('<x-image-annotations::image :image="$media" />', ['media' => $media]));
     }
 }
