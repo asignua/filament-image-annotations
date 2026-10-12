@@ -11,6 +11,7 @@ use Filament\Actions\ActionGroup;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
+use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
@@ -30,6 +31,7 @@ class PostResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
+            TextInput::make('title')->label('Title'),
             AnnotatedUpload::make(
                 SpatieMediaLibraryFileUpload::make('photos')->collection('photos')->image()->multiple(),
             ),
@@ -50,8 +52,8 @@ class PostResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('id'),
-                TextColumn::make('user_id'),
+                TextColumn::make('title')->label('Site photo'),
+                TextColumn::make('created_at')->label('Taken')->since(),
             ])
             ->recordActions([
                 ActionGroup::make([

@@ -27,6 +27,7 @@ class AdminPanelProvider extends PanelProvider
         return $panel
             ->default()
             ->id('admin')
+            ->brandName('Acme Supply')
             ->path('admin')
             ->login()
             ->resources([PostResource::class, NoteResource::class])

@@ -14,6 +14,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  *
  * @property int $id
  * @property int|null $user_id
+ * @property string|null $title
  * @property string|null $photo
  */
 class Post extends Model implements HasMedia

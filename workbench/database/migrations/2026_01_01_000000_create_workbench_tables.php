@@ -28,6 +28,7 @@ return new class extends Migration
         Schema::create('posts', function (Blueprint $table): void {
             $table->id();
             $table->foreignId('user_id')->nullable();
+            $table->string('title')->nullable();
             $table->string('photo')->nullable();
             $table->timestamps();
         });

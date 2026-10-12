@@ -1,5 +1,7 @@
 # Filament Image Annotations
 
+<img class="filament-hidden" src="https://raw.githubusercontent.com/asignua/filament-image-annotations/v1.1.2/art/cover.jpg" alt="Filament Image Annotations">
+
 [![Stand With Ukraine](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/badges/StandWithUkraine.svg)](https://stand-with-ukraine.pp.ua)
 [![Tests](https://img.shields.io/github/actions/workflow/status/asignua/filament-image-annotations/tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/asignua/filament-image-annotations/actions/workflows/tests.yml)
 [![License](https://img.shields.io/packagist/l/asignua/filament-image-annotations.svg?style=flat-square)](LICENSE.md)
@@ -37,12 +39,15 @@ in the panel or on your public site.
 
 ## Screenshots
 
-![The editor: toolbar, colours and shapes over a photo](art/editor.jpg)
+![The editor: toolbar, colours and shapes over a photo](https://raw.githubusercontent.com/asignua/filament-image-annotations/v1.1.2/art/editor.jpg)
 
-![An annotate button next to every stored image of an upload](art/upload.jpg)
+![An annotate button next to every stored image of an upload](https://raw.githubusercontent.com/asignua/filament-image-annotations/v1.1.2/art/upload.jpg)
 
-![The read-only view with the show/hide toggle](art/viewer.jpg)
+![The read-only view with the show/hide toggle](https://raw.githubusercontent.com/asignua/filament-image-annotations/v1.1.2/art/viewer.jpg)
 
+Dark mode:
+
+![The editor in dark mode](https://raw.githubusercontent.com/asignua/filament-image-annotations/v1.1.2/art/editor-dark.jpg)
 
 ## Requirements
 
