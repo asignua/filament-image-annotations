@@ -2,7 +2,7 @@
 
 All notable changes to `asignua/filament-image-annotations` are documented here.
 
-## v1.1.2 - Unreleased
+## v1.1.2 - 2026-10-12
 
 - Docs: screenshots, cover and a workbench demo.
 
