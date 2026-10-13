@@ -29,6 +29,9 @@
     $enabledTools = $getTools();
     $tools = array_intersect_key($allTools, array_flip($enabledTools));
 
+    // Frames that read on a light and a dark panel alike.
+    $frame = 'color-mix(in srgb, currentColor 18%, transparent)';
+
     $buttonStyle = 'display:inline-flex;align-items:center;justify-content:center;width:2.25rem;height:2.25rem;border-radius:0.5rem;border:1px solid rgba(128,128,128,.35);background:transparent;color:inherit;cursor:pointer;padding:0';
 @endphp
 
@@ -60,7 +63,7 @@
             <div
                 role="toolbar"
                 aria-label="{{ $t('toolbar.label') }}"
-                style="display:flex;flex-wrap:wrap;align-items:center;gap:0.75rem 1.25rem"
+                style="display:flex;flex-wrap:wrap;align-items:center;gap:0.75rem 1.25rem;padding:0.5rem;border:1px solid {{ $frame }};border-radius:0.75rem"
             >
                 <div role="group" aria-label="{{ $t('toolbar.tools') }}" style="display:flex;flex-wrap:wrap;gap:0.25rem">
                     @foreach ($tools as $name => [$shortcut, $icon])
@@ -144,7 +147,8 @@
 
             <p x-show="hint" x-cloak x-text="hint" role="status" class="fi-fo-field-wrp-hint"></p>
 
-            <div style="display:flex;justify-content:center;overflow:auto">
+            {{-- The stage: a tinted, framed area, so a light screenshot does not melt into a light modal. --}}
+            <div style="display:flex;justify-content:center;overflow:auto;padding:1rem;border:1px solid {{ $frame }};border-radius:0.75rem;background:color-mix(in srgb, currentColor 7%, transparent)">
                 <div
                     x-ref="surface"
                     x-on:pointerdown="start($event)"
@@ -161,7 +165,7 @@
                         alt=""
                         draggable="false"
                         x-on:load="imageLoaded()"
-                        style="display:block;max-width:100%;max-height:70vh;border-radius:0.25rem"
+                        style="display:block;max-width:100%;max-height:70vh;border-radius:0.25rem;box-shadow:0 0 0 1px rgba(0,0,0,.18),0 6px 20px rgba(0,0,0,.18)"
                     />
                     <svg x-ref="under" aria-hidden="true" focusable="false" style="position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none"></svg>
                     <svg x-ref="svg" aria-hidden="true" focusable="false" style="position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none"></svg>
