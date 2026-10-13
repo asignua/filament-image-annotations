@@ -2,6 +2,11 @@
 
 All notable changes to `asignua/filament-image-annotations` are documented here.
 
+## v1.2.0 - 2026-10-13
+
+- New: the viewer as a bare overlay over a picture drawn by someone else (no `x-ref="image"`): `data-aspect` (height / width) sizes the marks, `data-fit="cover"` crops them like an `object-fit: cover` picture, `data-interactive="false"` keeps the pins from catching clicks. Used by the Pro add-on to draw marks over chat thumbnails.
+- Editor: the toolbar is framed and the picture sits on a tinted, framed stage with a shadow, so a light screenshot no longer melts into a light modal (light and dark panels).
+
 ## v1.1.2 - 2026-10-12
 
 - Docs: screenshots, cover and a workbench demo.
