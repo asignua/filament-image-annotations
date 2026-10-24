@@ -1,0 +1,18 @@
+{
+    "shots": [],
+    "covers": [
+        {
+            "html": "../../scripts/art/cover.html",
+            "out": "cover.jpg",
+            "query": {
+                "eyebrow": "Plugin for Filament",
+                "title": "Draw on any image",
+                "lead": "Arrows, shapes, polygons, pen and text over any image, without touching the file.",
+                "chips": "Non-destructive|Polygon tool|Media Library|Read-only viewer",
+                "shot": "../../filament-image-annotations/art/editor.jpg",
+                "crop": "40,130,2800,1480",
+                "brand": "asignua"
+            }
+        }
+    ]
+}
