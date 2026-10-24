@@ -12,6 +12,7 @@ return [
         'arrow' => 'Flecha',
         'rect' => 'Rectángulo',
         'ellipse' => 'Elipse',
+        'polygon' => 'Polígono',
         'line' => 'Línea',
         'pen' => 'Lápiz',
         'highlight' => 'Resaltador',

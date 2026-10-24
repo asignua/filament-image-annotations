@@ -152,6 +152,31 @@ function buildItem(item, ctx) {
             break
         }
 
+        case 'polygon': {
+            if (points.length < 2) {
+                break
+            }
+
+            const list = points.map(([x, y]) => `${round(x)},${round(y)}`).join(' ')
+
+            // `open` exists only on the editor's unfinished draft: a polyline plus the vertex handles.
+            if (item.open) {
+                group.appendChild(el('polyline', { ...stroke, points: list }))
+
+                const dot = Math.max(4, width * 0.9)
+
+                points.slice(0, item.vertices ?? points.length).forEach(([x, y], index) => {
+                    group.appendChild(
+                        el('circle', { cx: round(x), cy: round(y), r: round(index === 0 ? dot * 1.8 : dot), fill: index === 0 ? '#ffffff' : color, stroke: color, 'stroke-width': round(Math.max(1.5, width * 0.4)) }),
+                    )
+                })
+            } else if (points.length >= 3) {
+                group.appendChild(el('polygon', { ...stroke, points: list }))
+            }
+
+            break
+        }
+
         case 'pen': {
             group.appendChild(el('path', { ...stroke, d: smoothPath(points) }))
 

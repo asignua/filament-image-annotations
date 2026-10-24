@@ -111,6 +111,31 @@ class ShapeSanitizerTest extends TestCase
         }
     }
 
+    public function test_polygon_takes_three_up_to_the_vertex_limit(): void
+    {
+        config(['filament-image-annotations.limits.polygon_points' => 5]);
+
+        foreach ([2 => false, 3 => true, 5 => true, 6 => false] as $count => $kept) {
+            $pts = array_map(fn (int $i): array => [$i / 10, ($i % 2) / 2], range(1, $count));
+
+            $this->assertCount($kept ? 1 : 0, $this->items($this->rect(['type' => 'polygon', 'pts' => $pts])), $count.' vertices');
+        }
+    }
+
+    public function test_polygon_clamps_rounds_and_drops_invalid_vertices(): void
+    {
+        $item = $this->items($this->rect(['type' => 'polygon', 'pts' => [[-1, 0.12345678], [2, 0.5], [0.5, 1.5]]]))[0];
+
+        $this->assertSame([[0.0, 0.1235], [1.0, 0.5], [0.5, 1.0]], $item['pts']);
+        $this->assertSame('polygon', $item['type']);
+        $this->assertArrayNotHasKey('open', $item);
+        $this->assertArrayNotHasKey('text', $item);
+
+        foreach ([[[0, 0], [1, 0], ['x', 1]], [[0, 0], [1, 0], [1]], [[0, 0], [1, 0], null], [[0, 0], [1, 0], [true, 1]]] as $pts) {
+            $this->assertSame([], $this->items($this->rect(['type' => 'polygon', 'pts' => $pts])));
+        }
+    }
+
     public function test_text_needs_one_point_and_non_empty_text(): void
     {
         $text = fn (array $o = []): array => $this->rect(array_merge(['type' => 'text', 'pts' => [[0.3, 0.3]], 'text' => 'Hi'], $o));

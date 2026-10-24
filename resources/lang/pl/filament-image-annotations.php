@@ -12,6 +12,7 @@ return [
         'arrow' => 'Strzałka',
         'rect' => 'Prostokąt',
         'ellipse' => 'Elipsa',
+        'polygon' => 'Wielokąt',
         'line' => 'Linia',
         'pen' => 'Pióro',
         'highlight' => 'Zakreślacz',

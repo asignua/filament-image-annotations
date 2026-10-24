@@ -12,6 +12,7 @@ return [
         'arrow' => 'Seta',
         'rect' => 'Retângulo',
         'ellipse' => 'Elipse',
+        'polygon' => 'Polígono',
         'line' => 'Linha',
         'pen' => 'Caneta',
         'highlight' => 'Marca-texto',

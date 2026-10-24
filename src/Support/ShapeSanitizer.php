@@ -176,6 +176,8 @@ class ShapeSanitizer
         $valid = match (true) {
             in_array($type, self::TWO_POINT_TYPES, true) => $count === 2,
             in_array($type, self::STROKE_TYPES, true) => $count >= 2 && $count <= max(2, (int) config('filament-image-annotations.limits.points', 2000)),
+            // A polygon needs a face: 3 vertices at least, `limits.polygon_points` at most (a longer one is dropped, not cut).
+            $type === 'polygon' => $count >= 3 && $count <= max(3, (int) config('filament-image-annotations.limits.polygon_points', 100)),
             in_array($type, ['text', 'pin'], true) => $count === 1,
             default => false,
         };

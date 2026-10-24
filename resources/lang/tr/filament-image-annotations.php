@@ -12,6 +12,7 @@ return [
         'arrow' => 'Ok',
         'rect' => 'Dikdörtgen',
         'ellipse' => 'Elips',
+        'polygon' => 'Çokgen',
         'line' => 'Çizgi',
         'pen' => 'Kalem',
         'highlight' => 'Vurgulayıcı',

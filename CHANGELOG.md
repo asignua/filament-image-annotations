@@ -2,6 +2,10 @@
 
 All notable changes to `asignua/filament-image-annotations` are documented here.
 
+## Unreleased
+
+- New: the **Polygon** tool (key `G`, on by default after the ellipse). Click to add vertices; double click, `Enter` or a click on the first vertex closes it; `Esc` cancels, `Backspace` removes the last vertex, `Shift` snaps a segment to 45 degrees. Select / move, recolour, stroke width, undo / redo and the viewer all handle polygons. Stored as `type: "polygon"` with 3 to `limits.polygon_points` (new, default `100`) points in `pts`; `ShapeSanitizer` drops a polygon outside that range. Add `polygon` to a published `tools` list to get the button.
+
 ## v1.2.0 - 2026-10-13
 
 - New: the viewer as a bare overlay over a picture drawn by someone else (no `x-ref="image"`): `data-aspect` (height / width) sizes the marks, `data-fit="cover"` crops them like an `object-fit: cover` picture, `data-interactive="false"` keeps the pins from catching clicks. Used by the Pro add-on to draw marks over chat thumbnails.

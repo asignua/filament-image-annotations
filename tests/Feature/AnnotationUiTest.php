@@ -235,6 +235,8 @@ class AnnotationUiTest extends TestCase
         $html = $this->editorHtml(Livewire::test(ListPosts::class)->mountAction($this->annotate()));
 
         $this->assertStringContainsString("setTool('arrow')", $html);
+        $this->assertStringContainsString("setTool('polygon')", $html);
+        $this->assertStringContainsString('aria-keyshortcuts="G"', $html);
         $this->assertStringNotContainsString("setTool('pin')", $html);
         $this->assertStringNotContainsString('data-layer-chips', $html);
         $this->assertStringContainsString('x-ref="under"', $html);
@@ -242,7 +244,7 @@ class AnnotationUiTest extends TestCase
 
     public function test_the_field_filters_tools_by_config_and_per_field(): void
     {
-        $this->assertSame(['select', 'arrow', 'rect', 'ellipse', 'line', 'pen', 'highlight', 'text'], ImageAnnotator::make('a')->getTools());
+        $this->assertSame(['select', 'arrow', 'rect', 'ellipse', 'polygon', 'line', 'pen', 'highlight', 'text'], ImageAnnotator::make('a')->getTools());
         $this->assertSame(['arrow', 'pin'], ImageAnnotator::make('a')->tools(['pin', 'bogus', 'arrow'])->getTools());
 
         config(['filament-image-annotations.tools' => ['select', 'pin']]);

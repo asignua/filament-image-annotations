@@ -10,7 +10,7 @@
  */
 import { emit, layerToggles, renderLayers, renderShapes, resolveColor, strokeWidth, VIEW_WIDTH } from './render.js'
 
-const SHORTCUTS = { v: 'select', a: 'arrow', r: 'rect', e: 'ellipse', l: 'line', p: 'pen', h: 'highlight', t: 'text', n: 'pin' }
+const SHORTCUTS = { v: 'select', a: 'arrow', r: 'rect', e: 'ellipse', g: 'polygon', l: 'line', p: 'pen', h: 'highlight', t: 'text', n: 'pin' }
 
 const MAX_PIN = 999
 
@@ -26,6 +26,7 @@ export default function imageAnnotator({ state, palette = {}, widths = [2, 4, 8]
     const maxShapes = limits.shapes ?? 200
     const maxPoints = limits.points ?? 2000
     const maxText = limits.text ?? 500
+    const maxPolygon = Math.max(3, limits.polygon_points ?? 100)
     const colorNames = Object.keys(palette)
 
     // Not reactive on purpose, see the header comment.
@@ -200,7 +201,7 @@ export default function imageAnnotator({ state, palette = {}, widths = [2, 4, 8]
             const hidden = this.editor?.id
             const visible = items.filter((item) => item.id !== hidden)
 
-            renderShapes(svg, draft ? [...visible, draft] : visible, { palette, aspect })
+            renderShapes(svg, draft ? [...visible, this.draftPreview()] : visible, { palette, aspect })
 
             const selected = this.selectedId && !draft ? this.node(this.selectedId) : null
 
@@ -222,6 +223,15 @@ export default function imageAnnotator({ state, palette = {}, widths = [2, 4, 8]
                 frame.setAttribute('data-selection', 'true')
                 svg.appendChild(frame)
             }
+        },
+
+        // The unfinished polygon is drawn with a rubber-band segment to the cursor; the stored `pts` stay vertices only.
+        draftPreview() {
+            if (draft.type !== 'polygon') {
+                return draft
+            }
+
+            return { ...draft, open: true, vertices: draft.pts.length, pts: draft.cursor ? [...draft.pts, draft.cursor] : draft.pts }
         },
 
         drawLayers() {
@@ -284,12 +294,113 @@ export default function imageAnnotator({ state, palette = {}, widths = [2, 4, 8]
                 const box = node.getBBox()
                 const tolerance = 10 + strokeWidth(item) * (item.type === 'highlight' ? 2 : 0.5)
 
+                if (item.type === 'polygon') {
+                    if (this.hitPolygon(item, x, y, tolerance)) {
+                        return item
+                    }
+
+                    continue
+                }
+
                 if (x >= box.x - tolerance && x <= box.x + box.width + tolerance && y >= box.y - tolerance && y <= box.y + box.height + tolerance) {
                     return item
                 }
             }
 
             return null
+        },
+
+        // Inside the polygon (even-odd) or within `tolerance` of an edge.
+        hitPolygon(item, x, y, tolerance) {
+            const pts = item.pts.map(([px, py]) => [px * VIEW_WIDTH, py * VIEW_WIDTH * aspect])
+            let inside = false
+
+            for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
+                const [xi, yi] = pts[i]
+                const [xj, yj] = pts[j]
+
+                if (yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) {
+                    inside = !inside
+                }
+
+                const lx = xj - xi
+                const ly = yj - yi
+                const t = lx === 0 && ly === 0 ? 0 : clamp01(((x - xi) * lx + (y - yi) * ly) / (lx * lx + ly * ly))
+
+                if (Math.hypot(x - (xi + t * lx), y - (yi + t * ly)) <= tolerance) {
+                    return true
+                }
+            }
+
+            return inside
+        },
+
+        // ---- polygon ------------------------------------------------------------------------------
+
+        // Screen distance in pixels between two normalised points.
+        screenDistance(a, b) {
+            const rect = this.$refs.image.getBoundingClientRect()
+
+            return Math.hypot((a[0] - b[0]) * rect.width, (a[1] - b[1]) * rect.height)
+        },
+
+        polygonClick(event, p) {
+            if (!draft) {
+                draft = { id: newId(), type: 'polygon', pts: [p], color: this.color, width: this.width, cursor: p }
+                this.redraw()
+
+                return
+            }
+
+            // A click on the first vertex closes the shape.
+            if (draft.pts.length >= 3 && this.screenDistance(p, draft.pts[0]) < 12) {
+                this.closePolygon()
+
+                return
+            }
+
+            const last = draft.pts[draft.pts.length - 1]
+            const next = this.constrain(last, p, event.shiftKey, 'line')
+
+            // The second click of a double click lands on the same spot: not a new vertex.
+            if (this.screenDistance(next, last) >= 3) {
+                draft.pts.push(next)
+            }
+
+            if (draft.pts.length >= maxPolygon) {
+                this.closePolygon()
+
+                return
+            }
+
+            draft.cursor = next
+            this.redraw()
+        },
+
+        closePolygon() {
+            if (!draft || draft.type !== 'polygon') {
+                return
+            }
+
+            const shape = draft
+
+            draft = null
+
+            if (shape.pts.length >= 3) {
+                delete shape.cursor
+                items.push(shape)
+                this.selectedId = null
+                this.commit()
+            } else {
+                this.redraw()
+            }
+        },
+
+        cancelPolygon() {
+            if (draft?.type === 'polygon') {
+                draft = null
+                this.redraw()
+            }
         },
 
         // ---- pointer ------------------------------------------------------------------------------
@@ -348,6 +459,12 @@ export default function imageAnnotator({ state, palette = {}, widths = [2, 4, 8]
                 return
             }
 
+            if (this.tool === 'polygon') {
+                this.polygonClick(event, p)
+
+                return
+            }
+
             const single = this.tool === 'pen' || this.tool === 'highlight'
 
             draft = { id: newId(), type: this.tool, pts: single ? [p] : [p, p], color: this.color, width: this.width }
@@ -372,6 +489,15 @@ export default function imageAnnotator({ state, palette = {}, widths = [2, 4, 8]
         },
 
         move(event) {
+            if (draft?.type === 'polygon') {
+                const last = draft.pts[draft.pts.length - 1]
+
+                draft.cursor = this.constrain(last, this.point(event), event.shiftKey, 'line')
+                this.redraw()
+
+                return
+            }
+
             if (!drag) {
                 return
             }
@@ -430,7 +556,7 @@ export default function imageAnnotator({ state, palette = {}, widths = [2, 4, 8]
                 return
             }
 
-            if (!draft) {
+            if (!draft || draft.type === 'polygon') {
                 return
             }
 
@@ -452,6 +578,12 @@ export default function imageAnnotator({ state, palette = {}, widths = [2, 4, 8]
 
         // Double click on a text item with the select tool edits it.
         edit(event) {
+            if (draft?.type === 'polygon') {
+                this.closePolygon()
+
+                return
+            }
+
             if (this.tool !== 'select') {
                 return
             }
@@ -535,6 +667,7 @@ export default function imageAnnotator({ state, palette = {}, widths = [2, 4, 8]
         // ---- toolbar / keyboard -------------------------------------------------------------------
 
         setTool(tool) {
+            this.closePolygon()
             this.commitText()
             this.resetConfirm()
             this.tool = tool
@@ -606,6 +739,12 @@ export default function imageAnnotator({ state, palette = {}, widths = [2, 4, 8]
         },
 
         undo() {
+            if (draft?.type === 'polygon') {
+                this.cancelPolygon()
+
+                return
+            }
+
             if (cursor > 0) {
                 cursor--
                 this.restore()
@@ -676,6 +815,37 @@ export default function imageAnnotator({ state, palette = {}, widths = [2, 4, 8]
 
             if (modifier || event.altKey) {
                 return
+            }
+
+            if (draft?.type === 'polygon') {
+                if (key === 'enter') {
+                    event.preventDefault()
+                    this.closePolygon()
+
+                    return
+                }
+
+                if (key === 'escape') {
+                    event.preventDefault()
+                    event.stopPropagation()
+                    this.cancelPolygon()
+
+                    return
+                }
+
+                if (key === 'backspace' || key === 'delete') {
+                    event.preventDefault()
+                    draft.pts.pop()
+
+                    if (draft.pts.length === 0) {
+                        this.cancelPolygon()
+                    } else {
+                        draft.cursor = draft.pts[draft.pts.length - 1]
+                        this.redraw()
+                    }
+
+                    return
+                }
             }
 
             if ((key === 'delete' || key === 'backspace') && this.selectedId) {

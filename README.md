@@ -6,7 +6,7 @@
 [![Tests](https://img.shields.io/github/actions/workflow/status/asignua/filament-image-annotations/tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/asignua/filament-image-annotations/actions/workflows/tests.yml)
 [![License](https://img.shields.io/packagist/l/asignua/filament-image-annotations.svg?style=flat-square)](LICENSE.md)
 
-Draw **arrows, rectangles, ellipses, lines, freehand pen strokes, a highlighter and text** over any image in a Filament 5
+Draw **arrows, rectangles, ellipses, polygons, lines, freehand pen strokes, a highlighter and text** over any image in a Filament 5
 panel, without touching the file. The annotations are a separate, tiny JSON layer in their own table: the original image
 is never modified, the markup can be edited or removed at any time, and the same layer can be shown read-only anywhere,
 in the panel or on your public site.
@@ -39,15 +39,15 @@ in the panel or on your public site.
 
 ## Screenshots
 
-![The editor: toolbar, colours and shapes over a photo](https://raw.githubusercontent.com/asignua/filament-image-annotations/v1.1.2/art/editor.jpg)
+![The editor: toolbar, colours and shapes over a photo](https://raw.githubusercontent.com/asignua/filament-image-annotations/v1.3.0/art/editor.jpg)
 
 ![An annotate button next to every stored image of an upload](https://raw.githubusercontent.com/asignua/filament-image-annotations/v1.1.2/art/upload.jpg)
 
-![The read-only view with the show/hide toggle](https://raw.githubusercontent.com/asignua/filament-image-annotations/v1.1.2/art/viewer.jpg)
+![The read-only view with the show/hide toggle](https://raw.githubusercontent.com/asignua/filament-image-annotations/v1.3.0/art/viewer.jpg)
 
 Dark mode:
 
-![The editor in dark mode](https://raw.githubusercontent.com/asignua/filament-image-annotations/v1.1.2/art/editor-dark.jpg)
+![The editor in dark mode](https://raw.githubusercontent.com/asignua/filament-image-annotations/v1.3.0/art/editor-dark.jpg)
 
 ## Requirements
 
@@ -179,6 +179,7 @@ ImageAnnotations::store()->forget($source);          // removes the layer, no au
 | Arrow | `A` | `Shift` snaps to 45 degrees. |
 | Rectangle | `R` | Drag any direction; `Shift` for a square. |
 | Ellipse | `E` | `Shift` for a circle. |
+| Polygon | `G` | Click to add vertices; double click, `Enter` or a click on the first vertex closes it, `Esc` cancels, `Backspace` removes the last vertex, `Shift` snaps a segment to 45°. |
 | Line | `L` | `Shift` snaps to 45 degrees. |
 | Pen | `P` | Freehand, smoothed. |
 | Highlighter | `H` | A wide, translucent stroke. |
@@ -262,6 +263,7 @@ bypass the buttons being hidden.
 | `widths` | `[2, 4, 8]` | The three stroke widths of the toolbar; the middle one is the default. |
 | `limits.shapes` | `200` | Shapes per image. The editor stops drawing and says so; the sanitiser drops the rest. |
 | `limits.points` | `2000` | Points of one pen / highlighter stroke. |
+| `limits.polygon_points` | `100` | Vertices of one polygon (3 at least); a polygon outside 3..N is dropped. |
 | `limits.text` | `500` | Characters of a text shape. |
 | `user_model` | `null` | The model of `user_id`; `null` = the default auth provider's model. |
 
@@ -282,7 +284,7 @@ readable).
 ```
 
 Coordinates are **normalised 0..1** relative to the image, so the layer fits any size the image is shown at. Types:
-`arrow`, `line`, `rect`, `ellipse` (two points), `pen`, `highlight` (2 to `limits.points` points), `text` (one point and
+`arrow`, `line`, `rect`, `ellipse` (two points), `polygon` (3 to `limits.polygon_points` vertices in `pts`, closed, no fill), `pen`, `highlight` (2 to `limits.points` points), `text` (one point and
 a non-empty `text`).
 
 `Support\ShapeSanitizer` runs on everything that is saved or displayed, it never throws and drops what it cannot fix:

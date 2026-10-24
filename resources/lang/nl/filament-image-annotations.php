@@ -12,6 +12,7 @@ return [
         'arrow' => 'Pijl',
         'rect' => 'Rechthoek',
         'ellipse' => 'Ellips',
+        'polygon' => 'Veelhoek',
         'line' => 'Lijn',
         'pen' => 'Pen',
         'highlight' => 'Markeerstift',

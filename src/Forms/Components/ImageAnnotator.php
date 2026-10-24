@@ -19,7 +19,7 @@ class ImageAnnotator extends Field
     use InteractsWithImage;
 
     /** Every tool the toolbar knows, in toolbar order. `pin` is opt-in. */
-    public const array TOOLS = ['select', 'arrow', 'rect', 'ellipse', 'line', 'pen', 'highlight', 'text', 'pin'];
+    public const array TOOLS = ['select', 'arrow', 'rect', 'ellipse', 'polygon', 'line', 'pen', 'highlight', 'text', 'pin'];
 
     protected string $view = 'filament-image-annotations::forms.annotator';
 

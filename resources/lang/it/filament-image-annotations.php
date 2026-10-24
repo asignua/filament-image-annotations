@@ -12,6 +12,7 @@ return [
         'arrow' => 'Freccia',
         'rect' => 'Rettangolo',
         'ellipse' => 'Ellisse',
+        'polygon' => 'Poligono',
         'line' => 'Linea',
         'pen' => 'Penna',
         'highlight' => 'Evidenziatore',

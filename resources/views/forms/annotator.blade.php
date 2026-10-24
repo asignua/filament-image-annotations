@@ -20,6 +20,7 @@
         'arrow' => ['A', '<path d="M5 19L19 5M19 5h-8M19 5v8"/>'],
         'rect' => ['R', '<rect x="4" y="6" width="16" height="12" rx="1"/>'],
         'ellipse' => ['E', '<ellipse cx="12" cy="12" rx="9" ry="6"/>'],
+        'polygon' => ['G', '<path d="M12 4l8 6-3 10H7L4 10z"/>'],
         'line' => ['L', '<path d="M5 19L19 5"/>'],
         'pen' => ['P', '<path d="M4 20l1-4L16 5l3 3L8 19z"/>'],
         'highlight' => ['H', '<path d="M4 21h16M8 17l8-8 3 3-8 8H8z"/>'],

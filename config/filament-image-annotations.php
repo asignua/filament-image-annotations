@@ -51,18 +51,19 @@ return [
     | The tools of the editor toolbar, in order. Also available: `pin` (a numbered marker, shortcut N), off by
     | default; the pro package turns it on. Override per field with `ImageAnnotator::make()->tools([...])`.
     */
-    'tools' => ['select', 'arrow', 'rect', 'ellipse', 'line', 'pen', 'highlight', 'text'],
+    'tools' => ['select', 'arrow', 'rect', 'ellipse', 'polygon', 'line', 'pen', 'highlight', 'text'],
 
     /*
     |--------------------------------------------------------------------------
     | Limits
     |--------------------------------------------------------------------------
     |
-    | shapes: items per image; points: points of one pen/highlight stroke; text: characters of a text item.
+    | shapes: items per image; points: points of one pen/highlight stroke; polygon_points: vertices of one polygon (3 at least); text: characters of a text item.
     */
     'limits' => [
         'shapes' => 200,
         'points' => 2000,
+        'polygon_points' => 100,
         'text' => 500,
     ],
 
