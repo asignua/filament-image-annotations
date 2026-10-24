@@ -12,12 +12,15 @@ is never modified, the markup can be edited or removed at any time, and the same
 in the panel or on your public site.
 
 - **Non-destructive.** The file stays byte-for-byte what was uploaded. Delete the layer and you have the original.
-- **A real editor.** Eight tools, eight colours, three stroke widths, undo/redo, move and recolour a selected shape, touch
+- **A real editor.** Nine tools, eight colours, three stroke widths, undo/redo, move and recolour a selected shape, touch
   and pen support, keyboard shortcuts.
 - **Works with what you have.** A Spatie Media Library item, a path in a `FileUpload` column, or anything you teach it
   through a small `ImageSource` contract.
 - **Safe by construction.** Everything the browser sends is sanitised on save (shape types, coordinates, colours, lengths)
   and the renderer builds SVG with `createElementNS` and `textContent` only, never `innerHTML`.
+
+Reviewing images as a team (a layer per author, numbered pins with comment threads)? That is the paid add-on - see
+[Free or Pro](#pro).
 
 - [Screenshots](#screenshots)
 - [Requirements](#requirements)
@@ -331,14 +334,19 @@ If your public pages cache HTML for everybody, remember the layer is rendered pe
 
 ## Pro
 
-A paid **Pro** package is planned, built on the hooks already here (`AnnotationStore` is a singleton you can rebind, and
-`user_id` is kept for it):
+| | [Image Annotations](https://github.com/asignua/filament-image-annotations) (free, MIT) | [Image Annotations Pro](https://github.com/asignua/filament-image-annotations-pro-docs) (€69 / €169) |
+| --- | :---: | :---: |
+| Non-destructive vector layer over any image (Media Library, `FileUpload`, own `ImageSource`) | ✓ | ✓ |
+| Editor: arrow, rectangle, ellipse, polygon, line, pen, highlighter, text; colours, widths, undo/redo | ✓ | ✓ |
+| Read-only view in the panel and on public pages, sanitised on save | ✓ | ✓ |
+| One layer per author, all shown together, colour-coded, each with a toggle | | ✓ |
+| Numbered pins with comment threads, resolve and reopen | | ✓ |
+| Threads panel next to the editor and next to every annotated image | | ✓ |
+| Standalone editor modal opened from any page with one browser event (signed source tokens) | | ✓ |
+| Events for a CRM or notifications (`PinCommentAdded`, `PinThreadResolved`, ...) | | ✓ |
+| Annotate image attachments in Filament Chat Pro | | ✓ |
 
-- **Layers per author**: each reviewer draws on their own layer and you switch them on and off.
-- **Numbered pins with comment threads** attached to a point of the image.
-- **Chat integration**: annotate the image attachments of `asignua/filament-chat-pro` conversations.
-
-Coming soon.
+Image Annotations Pro is an add-on: it requires the free package and builds on its seams, so existing layers carry over.
 
 ## Extending
 
