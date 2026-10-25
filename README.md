@@ -1,6 +1,6 @@
 # Filament Image Annotations
 
-<img class="filament-hidden" src="https://raw.githubusercontent.com/asignua/filament-image-annotations/v1.1.2/art/cover.jpg" alt="Filament Image Annotations">
+<img class="filament-hidden" src="https://raw.githubusercontent.com/asignua/filament-image-annotations/v1.3.1/art/cover.jpg" alt="Filament Image Annotations">
 
 [![Stand With Ukraine](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/badges/StandWithUkraine.svg)](https://stand-with-ukraine.pp.ua)
 [![Tests](https://img.shields.io/github/actions/workflow/status/asignua/filament-image-annotations/tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/asignua/filament-image-annotations/actions/workflows/tests.yml)
@@ -42,15 +42,15 @@ Reviewing images as a team (a layer per author, numbered pins with comment threa
 
 ## Screenshots
 
-![The editor: toolbar, colours and shapes over a photo](https://raw.githubusercontent.com/asignua/filament-image-annotations/v1.3.0/art/editor.jpg)
+![The editor: toolbar, colours and shapes over a photo](https://raw.githubusercontent.com/asignua/filament-image-annotations/v1.3.1/art/editor.jpg)
 
-![An annotate button next to every stored image of an upload](https://raw.githubusercontent.com/asignua/filament-image-annotations/v1.1.2/art/upload.jpg)
+![An annotate button next to every stored image of an upload](https://raw.githubusercontent.com/asignua/filament-image-annotations/v1.3.1/art/upload.jpg)
 
-![The read-only view with the show/hide toggle](https://raw.githubusercontent.com/asignua/filament-image-annotations/v1.3.0/art/viewer.jpg)
+![The read-only view with the show/hide toggle](https://raw.githubusercontent.com/asignua/filament-image-annotations/v1.3.1/art/viewer.jpg)
 
 Dark mode:
 
-![The editor in dark mode](https://raw.githubusercontent.com/asignua/filament-image-annotations/v1.3.0/art/editor-dark.jpg)
+![The editor in dark mode](https://raw.githubusercontent.com/asignua/filament-image-annotations/v1.3.1/art/editor-dark.jpg)
 
 ## Requirements
 

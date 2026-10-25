@@ -2,6 +2,10 @@
 
 All notable changes to `asignua/filament-image-annotations` are documented here.
 
+## v1.3.1 - 2026-10-25
+
+- Screenshots and the cover carry the «made in asign» mark; README shows the Stand With Ukraine badge.
+
 ## v1.3.0 - 2026-10-25
 
 - New: the **Polygon** tool (key `G`, on by default after the ellipse). Click to add vertices; double click, `Enter` or a click on the first vertex closes it; `Esc` cancels, `Backspace` removes the last vertex, `Shift` snaps a segment to 45 degrees. Select / move, recolour, stroke width, undo / redo and the viewer all handle polygons. Stored as `type: "polygon"` with 3 to `limits.polygon_points` (new, default `100`) points in `pts`; `ShapeSanitizer` drops a polygon outside that range. Add `polygon` to a published `tools` list to get the button.
