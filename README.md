@@ -440,6 +440,15 @@ npm ci && npm run build   # only when resources/js changed; resources/dist is co
 
 See [CHANGELOG.md](CHANGELOG.md).
 
+## More plugins by asign
+
+- [Image Annotations Pro](https://filamentphp.com/plugins/asign-image-annotations-pro) — extended annotation tools
+- [Image Meta](https://filamentphp.com/plugins/asign-image-meta) — alt text, caption and focal point for uploads
+- [Rich Editor Toolkit](https://filamentphp.com/plugins/asign-rich-editor-toolkit) — paste cleanup, attributes and video links in the rich editor
+- [Themes](https://filamentphp.com/plugins/asign-themes) — per-user and per-panel colour themes
+
+All plugins: <https://filamentphp.com/plugins?q=asign>
+
 ## License
 
 The MIT License (MIT). See [LICENSE.md](LICENSE.md).
