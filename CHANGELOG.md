@@ -2,6 +2,10 @@
 
 All notable changes to `asignua/filament-image-annotations` are documented here.
 
+## v1.4.0 - 2026-11-10
+
+- Requires Filament ^5.11.2; replaced deprecated Filament API calls: none needed in code (phpstan deprecation scan clean; constraint raised, dev media-library plugin too).
+
 ## v1.3.1 - 2026-10-25
 
 - Screenshots and the cover carry the «made in asign» mark; README shows the Stand With Ukraine badge.
